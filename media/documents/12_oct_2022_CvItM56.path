@@ -1,0 +1,540 @@
+diff --git a/rest/static/js/govtech_dashboard/govtech_companies.js b/rest/static/js/govtech_dashboard/govtech_companies.js
+index b47c2f4a..0f98fd30 100644
+--- a/rest/static/js/govtech_dashboard/govtech_companies.js
++++ b/rest/static/js/govtech_dashboard/govtech_companies.js
+@@ -53,12 +53,16 @@ const API_SHORTLIST_REMOVE = "/dashboards/api/remove-shortlisted-companies/";
+ function shortlist_company_toggle(company_id) {
+     let elem = $("#shortlist_company_" + company_id);
+     let elem_details = $("#shortlist_company_details_" + company_id);
+-    if (!elem && !elem_details)
++    let elem_map = $("#shortlist_company_map_" + company_id);
++    let elem_details_map = $("#shortlist_company_details_map_" + company_id);
++    if (!elem && !elem_details || !elem_map && !elem_details_map)
+         return;
+ 
+     let comp_state = elem.attr('data-saved');
+     let comp_details_state = elem_details.attr('data-saved');
+-    if (comp_state == '1' || comp_details_state == '1') {
++    let comp_state_map = elem_map.attr('data-saved');
++    let comp_details_state_map = elem_details_map.attr('data-saved');
++    if (comp_state == '1' || comp_details_state == '1' || comp_state_map == '1' || comp_details_state_map == '1') {
+         // this means that company already in shortlist
+         // then we need to remove it, and change state to 0
+         $.ajax({
+@@ -68,13 +72,15 @@ function shortlist_company_toggle(company_id) {
+             success: function (msg) {
+                 elem.attr('data-saved', '0').removeClass('btn-outline-warning').addClass('btn-outline-primary').text('Shortlist');
+                 elem_details.attr('data-saved', '0').removeClass('btn-outline-warning').addClass('btn-outline-primary').text('Shortlist');
++                elem_map.attr('data-saved', '0').removeClass('btn-outline-warning').addClass('btn-outline-primary').text('Shortlist');
++                elem_details_map.attr('data-saved', '0').removeClass('btn-outline-warning').addClass('btn-outline-primary').text('Shortlist');
+             },
+             error: function(msg) {
+                 console.warn('shortlist_company_toggle() error:', msg.status);
+                 console.warn(msg.responseJSON);
+             }
+         });
+-    } else if (comp_state == '0' || comp_details_state == '0') {
++    } else if (comp_state == '0' || comp_details_state == '0' || comp_state_map == '0' || comp_details_state_map == '0') {
+         // company not in shortlist. lets add it
+         $.ajax({
+             url: API_SHORTLIST_COMPANY,
+@@ -83,6 +89,8 @@ function shortlist_company_toggle(company_id) {
+             success: function (msg) {
+                 elem.attr('data-saved', '1').removeClass('btn-outline-primary').addClass('btn-outline-warning').text('Shortlisted');
+                 elem_details.attr('data-saved', '1').removeClass('btn-outline-primary').addClass('btn-outline-warning').text('Shortlisted');
++                elem_map.attr('data-saved', '1').removeClass('btn-outline-primary').addClass('btn-outline-warning').text('Shortlisted');
++                elem_details_map.attr('data-saved', '1').removeClass('btn-outline-primary').addClass('btn-outline-warning').text('Shortlisted');
+             },
+             error: function(msg) {
+                 console.warn('shortlist_company_toggle() error:', msg.status);
+@@ -687,35 +695,46 @@ function show_mini_chart_widget(id){
+             }
+         );
+     }
+-function show_company_details(id, title, slug) {
++function show_company_details(id, title, slug,modal) {
+     if (typeCompanyPage == 'public companies') {
+         show_mini_chart_widget(id, title)
+     }
+     //show_new_2d_diagramm(id, title);
+-    show_company_info(slug);
++    show_company_info(slug,modal);
+     idCompany = id;
+     titleCompany = title;
+     slugCompany = slug;
+ }
+ 
+-function show_company_info(slug) {
++function show_company_info(slug,modal=false) {
+     $.ajax(
+         {
+             url: API_COMPS_DETAILS + "?slug=" + slug + "&add=portfolio",
+             type: 'GET',
+             success: function (msg) {
++                if(modal){
++                    $('#companies_info_modal').modal('show');
++                }
+                 if (typeCompanyPage == "investors") {
+                     $("#portfolio_govtech_investors").show();
++                    $("#portfolio_govtech_investors_map").show();
+                 } else {
+                     $("#portfolio_govtech_investors").hide();
++                    $("#portfolio_govtech_investors_map").hide();
+                 }
+                 let s_companies = msg["shorlisted_companies"];
+                 $("#company_titles").text(msg["title"]);
++                $("#company_titles_map").text(msg["title"]);
+                 $("#descriptions").text(msg["fields"]["description"]["value"]);
++                $("#descriptions_map").text(msg["fields"]["description"]["value"]);
+                 $("#property").empty();
++                $("#property_map").empty();
+                 $('#investor-portfolio-list').empty();
++                $('#investor-portfolio-list_map').empty();
+                 $("#company_logo").empty();
++                $("#company_logo_map").empty();
+                 $("#shortlist_company_details").empty();
++                $("#shortlist_company_details_map").empty();
+                 logos = msg["fields"]["logo"]["value"]
+                 let logo = 'https://platform.dkv.global/files/' + logos;
+                 logo = logo.replace('#', '%23');
+@@ -736,9 +755,16 @@ function show_company_info(slug) {
+                             <br>
+                             <span class="inv_name" style=" margin-top;10px;display: block;">${investor_portfolio[i]["title"]}</span>
+                             </div>`);
++                            $('#investor-portfolio-list-map').append(`
++                            <div style="vertical-align: center; display: inline-block; text-align: center; width: 120px;" class="item">
++                            <img class="inv_img"src="${logo}" alt="avatar" style="width:50px;"/>
++                            <br>
++                            <span class="inv_name" style=" margin-top;10px;display: block;">${investor_portfolio[i]["title"]}</span>
++                            </div>`);
+                         }
+                     } else {
+                         $('#investor-portfolio-list').append(`<div>No Investors Found</div>`);
++                        $('#investor-portfolio-list-map').append(`<div>No Investors Found</div>`);
+                     }
+                 }
+                 $("#company_logo").append(`
+@@ -746,12 +772,23 @@ function show_company_info(slug) {
+                         <img src="${logo}" alt="avatar" width="100px" class="rounded-corners"/>
+                     </div>
+                 `);
++                $("#company_logo_map").append(`
++                <div>
++                    <img src="${logo}" alt="avatar" width="100px" class="rounded-corners"/>
++                </div>
++            `);
+                 $("#shortlist_company_details").append(`
+                     <button id="shortlist_company_details_${msg["id"]}" type="button"
+                         data-saved="${s_companies.includes(msg['id']) ? '1' : '0'}"
+                         class="btn btn-outline-${s_companies.includes(msg['id']) ? 'warning' : 'primary'} pl-50 pr-50"
+                         onclick="shortlist_company_toggle('${msg["id"]}')">${s_companies.includes(msg['id']) ? 'Shortlisted' : 'Shortlist'}</button>
+                 `);
++                $("#shortlist_company_details_map").append(`
++                    <button id="shortlist_company_details_map_${msg["id"]}" type="button"
++                        data-saved="${s_companies.includes(msg['id']) ? '1' : '0'}"
++                        class="btn btn-outline-${s_companies.includes(msg['id']) ? 'warning' : 'primary'} pl-50 pr-50"
++                        onclick="shortlist_company_toggle('${msg["id"]}')">${s_companies.includes(msg['id']) ? 'Shortlisted' : 'Shortlist'}</button>
++                `);
+                 //let fields = Object.keys(msg["fields"]);
+                 let fields = ['link', 'country', 'city', 'year', 'ipo_status', 'staff', 'fund_last', 'fund_total', 'fund_rev', 'c_li', 'c_tw', 'c_em'];
+                 for (let i = 0; i < fields.length; i++) {
+@@ -762,16 +799,20 @@ function show_company_info(slug) {
+ 
+                     if (field_value && field_value.toString().indexOf("http") == -1) {
+                         $("#property").append('<li class="list-group-item"><bold style="color:#7367F0">' + field_name.toUpperCase() + ' </bold>' + field_value + '</li>');
++                        $("#property_map").append('<li class="list-group-item"><bold style="color:#7367F0">' + field_name.toUpperCase() + ' </bold>' + field_value + '</li>');
+                     } else {
+                         $("#property").append('<li class="list-group-item"><bold style="color:#7367F0">' + field_name.toUpperCase() + ' </bold><a target="_blank" style="color: #b4b7bd" href="' + field_value + '">' + field_value + '</a></li>');
++                        $("#property_map").append('<li class="list-group-item"><bold style="color:#7367F0">' + field_name.toUpperCase() + ' </bold><a target="_blank" style="color: #b4b7bd" href="' + field_value + '">' + field_value + '</a></li>');
+                     }
+                 }
+                 if (msg["categories"]["GovTech Subindustry"] != undefined) {
+                     let subindustry = msg["categories"]["GovTech Subindustry"][0];
+                     $("#property").append('<li class="list-group-item"><bold style="color:#7367F0"> GovTech Subindustry' + ' </bold>'  + subindustry+ '</li>');
++                    $("#property_map").append('<li class="list-group-item"><bold style="color:#7367F0"> GovTech Subindustry' + ' </bold>'  + subindustry+ '</li>');
+                 } else if (msg["categories"]["DeepTech sub-Industry"] != undefined) {
+                     let subindustry = msg["categories"]["DeepTech sub-Industry"][0];
+                     $("#property").append('<li class="list-group-item"><bold style="color:#7367F0"> Subindustry' + ' </bold>'  + subindustry+ '</li>');
++                    $("#property_map").append('<li class="list-group-item"><bold style="color:#7367F0"> Subindustry' + ' </bold>'  + subindustry+ '</li>');
+                 }
+                 if (!msg.categories['Industry Groups'])
+                     return;
+@@ -845,12 +886,12 @@ function show_company_info(slug) {
+                 
+                 if (msg['fields']['ipo_status']['value'])
+                     additional_company_params['ipo_status'] = msg['fields']['ipo_status']['value_id'];
+-                
+-                generate_matching_list(main_category, 'marketing', additional_company_params);
+-                generate_matching_list(main_category, 'legal', additional_company_params);
+-                generate_matching_list(main_category, 'financial', additional_company_params);
+-                generate_matching_list(main_category, 'software', additional_company_params);
+-                generate_matching_list(main_category, 'hardware', additional_company_params);
++
++                    generate_matching_list(main_category, 'marketing', additional_company_params);
++                    generate_matching_list(main_category, 'legal', additional_company_params);
++                    generate_matching_list(main_category, 'financial', additional_company_params);
++                    generate_matching_list(main_category, 'software', additional_company_params);
++                    generate_matching_list(main_category, 'hardware', additional_company_params);
+             }
+         }
+     );
+@@ -858,14 +899,17 @@ function show_company_info(slug) {
+ 
+ 
+ function generate_matching_list(main_category, list_name, additional_company_params) {   
+     if (!main_category)
+         return;
+ 
+     let match_elem = $('#company_matching_' + list_name);
+-    if (!match_elem)
++    let match_elem_map = $('#company_matching_' + list_name + '_map');
++    if (!match_elem || !match_elem_map)
+         return;
+ 
+     match_elem.html('<em>searching competitors...</em><br/> ');
++    match_elem_map.html('<em>searching competitors...</em><br/> ');
+ 
+     let filters = {
+         dashboard: DASH_SLUG,
+@@ -940,6 +984,7 @@ function generate_matching_list(main_category, list_name, additional_company_par
+         traditional: true,
+         success: function (msg) {
+             match_elem.empty();
++            match_elem_map.empty();
+             if (msg.data.length > 0) {
+                 let temp_list = msg.data;
+                 temp_list.forEach(function(co){
+@@ -963,10 +1008,14 @@ function generate_matching_list(main_category, list_name, additional_company_par
+                     match_elem.append(`
+                         <div class="btn btn-outline-primary" onClick="show_competitor_details('${slugCompany}')">${msg.data[i].title}</div>
+                     `);
++                    match_elem_map.append(`
++                        <div class="btn btn-outline-primary" onClick="show_competitor_details('${slugCompany}')">${msg.data[i].title}</div>
++                    `);
+                 }
+             } else {
+                 match_elem.html('<p><em>We can\'t find suitable companies for this list.</em></p>')
+-            }            
++                match_elem_map.html('<p><em>We can\'t find suitable companies for this list.</em></p>')
++            }           
+         }
+ 
+     })
+@@ -1080,13 +1129,17 @@ function show_tool_company(chart,typeCompanyPage) {
+     }
+     if (chart == undefined){
+         var type = $('#typeOfValueTool input:checked').val();
++        var type1 = $('#typeOfValueTool_map input:checked').val();
+     } else {
+         var type = chart;
++        var type1 = chart
+         document.getElementById('Matching_Tool').checked = true;
++        document.getElementById('Matching_Tool_map').checked = true;
+     }
+-    if (type == "SharesAnalysis") {
++    if (type == "SharesAnalysis" || type1 == "SharesAnalysis") {
+         $('#company_swot').show();
+         $('#company_matching').hide();
++        $('#company_matching_map').hide();
+         $('#perfomanceDiv').hide();
+         $('#shares_chart_radio').hide();
+         $('#matching-radio').show();
+@@ -1098,11 +1151,14 @@ function show_tool_company(chart,typeCompanyPage) {
+             $('#portfolio_govtech_investors').hide();
+         } else if (typeCompanyPage == "companies" || typeCompanyPage == "investors") {
+             $('#matching-radio').hide();
++            $('#matching-radio-map').hide();
+             $("#Marketing_Tools_add").show();
++            $("#Marketing_Tools_add_map").show();
+         }
+-    } else if (type == "MatchingTool") {
++    } else if (type == "MatchingTool" || type1 == "MatchingTool") {
+         $('#company_swot').hide();
+         $('#company_matching').show();
++        $('#company_matching_map').show();
+         $('#perfomanceDiv').hide();
+         $('#shares_chart_radio').hide();
+         $('#matching-radio').show();
+@@ -1115,10 +1171,13 @@ function show_tool_company(chart,typeCompanyPage) {
+         } else if (typeCompanyPage == "companies" || typeCompanyPage == "investors") {
+             $('#matching-radio').hide();
+             $("#Marketing_Tools_add").show();
++            $('#matching-radio-map').hide();
++            $("#Marketing_Tools_add_map").show();
+         }
+-    } else if (type == "Perfomance") {
++    } else if (type == "Perfomance" || type1 == "Perfomance") {
+         $('#company_swot').hide();
+         $('#company_matching').hide();
++        $('#company_matching_map').hide();
+         $('#perfomanceDiv').show();
+         $('#shares_chart_radio').hide();
+         $('#matching-radio').show();
+@@ -1131,11 +1190,14 @@ function show_tool_company(chart,typeCompanyPage) {
+         } else if (typeCompanyPage == "companies" || typeCompanyPage == "investors") {
+             $('#matching-radio').hide();
+             $("#Marketing_Tools_add").show();
++            $('#matching-radio-map').hide();
++            $("#Marketing_Tools_add_map").show();
+         }
+-    } else if (type == "SharesChart") {
++    } else if (type == "SharesChart" || type1 == "SharesChart") {
+         $('#shares_chart_div').show();
+         $('#company_swot').hide();
+         $('#company_matching').hide();
++        $('#company_matching_map').hide();
+         $('#perfomanceDiv').hide();
+         $('#shares_chart_radio').hide();
+         if (typeCompanyPage == "public companies") {
+@@ -1146,6 +1208,7 @@ function show_tool_company(chart,typeCompanyPage) {
+         } else if (typeCompanyPage == "companies" || typeCompanyPage == "investors") {
+             $('#matching-radio').hide();
+             $("#Marketing_Tools_add").show();
++            $('#matching-radio-map').hide();
+         }
+         show_mini_chart_widget(idCompany);
+     }
+@@ -1204,7 +1267,7 @@ function show_competitor_details(slug) {
+                             <div class="mt-1">
+                                 ${category_labels_html}
+                             </div>
+-                        </li>
++                        </li>showDetail
+                         `);
+                 }
+             }
+@@ -1246,7 +1309,6 @@ function nextPage() {
+ 
+ function showNews(slug, page_number) {
+     var page_to_show = page_number;
+-
+     $.ajax(
+         {
+             url: API_COMPS_NEWS,
+@@ -1259,7 +1321,9 @@ function showNews(slug, page_number) {
+             success: function (msg) {
+                 total_record = msg["total_record"]
+                 if (msg["news"] && msg["news"].length != 0) {
++                    $("#news_map").removeClass('d-none');
+                     $("#company_news").empty();
++                    $("#company_news_map").empty();
+                     for (let i = 0; i < msg["news"].length; i++) {
+                         $("#company_news").append(
+                             `<div class="card-body" style="overflow: auto; background-color: #40485A;">
+@@ -1273,13 +1337,27 @@ function showNews(slug, page_number) {
+                                 <div class="col"><p>${msg["news"][i]["shortr"]}</p></div>
+                                 </div>
+                             </div>&nbsp;`)
++                            $("#company_news_map").append(
++                                `<div class="card-body" style="overflow: auto; background-color: #40485A;">
++                                    <div class="row d-flex">
++                                        <div class="col-9"><h5>${msg["news"][i]["name"]}</h5></div>
++                                        <div class="col-3"><p style="font-size: small;">${msg["news"][i]["date"]}</p></div>
++                                        <div class="col"><p>${msg["news"][0]["company_name"]}</p></div>
++                                    </div>
++                                    <div class="dropdown-divider"></div>
++                                    <div class="row d-flex">
++                                    <div class="col"><p>${msg["news"][i]["shortr"]}</p></div>
++                                    </div>
++                                </div>&nbsp;`)
+                     }
+                 } else {
+                     $("#news").hide();
++                    $("#news_map").hide();
+                 }
+             },
+             error: function (jqXHR, exception) {
+                 $("#news").hide();
++                $("#news_map").hide();
+             }
+         }
+     );
+diff --git a/rest/static/js/govtech_dashboard/govtech_dashboard.js b/rest/static/js/govtech_dashboard/govtech_dashboard.js
+index 8f6728a9..e1b562bd 100644
+--- a/rest/static/js/govtech_dashboard/govtech_dashboard.js
++++ b/rest/static/js/govtech_dashboard/govtech_dashboard.js
+@@ -689,12 +689,12 @@ function get_tooltip_modal_for_world_map(ev,graph_name,action){
+         }
+         else{
+             if (company.length > 1){
+-                a_tag_first = `<a data-toggle="modal" data-target=#company_info onclick="show_company_details('${company[0].slug}',${company[0].id},'${company[0].title}')">${company[0].title} </a>`
+-                a_tag_sec = `<a data-toggle="modal" data-target=#company_info onclick="show_company_details('${company[1].slug}',${company[1].id},'${company[1].title}')">${company[1].title} </a>`
++                a_tag_first = `<a data-toggle="modal" data-target=#company_info onclick="show_company_details(${company[0].id},'${company[0].title}','${company[0].slug}',modal=${true})">${company[0].title} </a>`
++                a_tag_sec = `<a data-toggle="modal" data-target=#company_info onclick="show_company_details(${company[1].id},'${company[1].title}','${company[1].slug}'),,modal=${true}">${company[1].title} </a>`
+                 temp_data.push("<tr> <td>" + Object.keys(comp_data)[j] + "</td><td>"+ '2 companies : &nbsp&nbsp' + a_tag_first + ', ' + a_tag_sec +"</td></tr>")
+             }
+             else {
+-                a_tag_first = `<a data-toggle="modal" data-target=#company_info onclick="show_company_details('${company[0].slug}',${company[0].id},'${company[0].title}')">${company[0].title} </a>`
++                a_tag_first = `<a data-toggle="modal" data-target=#company_info onclick="show_company_details(${company[0].id},'${company[0].title}','${company[0].slug}',modal=${true})">${company[0].title} </a>`
+                 temp_data.push("<tr> <td>" + Object.keys(comp_data)[j] + "</td><td>" + '1 company : &nbsp&nbsp' + a_tag_first +"</td></tr>")
+             }
+         }
+@@ -712,7 +712,7 @@ function list_all_comp(country, region) {
+     country_data = region_wise_company_data[region][country]
+     temp_data = []
+     for (j=0 ; j<country_data.length;j++){
+-        temp_data.push(`<tr onclick="show_company_details('${country_data[j].slug}',${country_data[j].id},'${country_data[j].title}')"> <td> ${country_data[j].title} </td> <td> <button type="button" class="btn btn-gradient-primary" data-toggle="modal" data-target="#company_info" onclick="show_company_details('${country_data[j].slug}',${country_data[j].id},'${country_data[j].title}','ai companies')">Details</button> </td> </tr>`)
++        temp_data.push(`<tr onclick="show_company_details(${country_data[j].id},'${country_data[j].title}','${country_data[j].slug}')"> <td> ${country_data[j].title} </td> <td> <button type="button" class="btn btn-gradient-primary" data-toggle="modal" data-target="#company_info" onclick="show_company_details(${country_data[j].id},'${country_data[j].title}','${country_data[j].slug}',modal=${true})">Details</button> </td> </tr>`)
+     }
+     $("#country_company_data").html(temp_data);
+     $("#country_title").html(country);
+diff --git a/rest/templates/rest/govtech_dashboard/govtech_dashboard.html b/rest/templates/rest/govtech_dashboard/govtech_dashboard.html
+index bd277d25..65efff4e 100644
+--- a/rest/templates/rest/govtech_dashboard/govtech_dashboard.html
++++ b/rest/templates/rest/govtech_dashboard/govtech_dashboard.html
+@@ -827,7 +827,7 @@
+         </div>
+     </div>
+ 
+-    <div class="modal fade" id="company_info_second" tabindex="1" aria-labelledby="myModalLabel2" aria-hidden="true">
++    <div class="modal fade" id="company_info_second" tabindex="1" aria-labelledby="myModalLabel2" aria-hidden="true" style=" z-index: 2000;">
+         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+             <div class="modal-content text-left">
+                 <div class="modal-header">
+@@ -894,6 +894,146 @@
+         </div>
+     </div>
+ 
++    <div class="modal fade text-left" id="companies_info_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1"
++        aria-hidden="true" style="position: absolute;overflow-y: scroll;">
++        <div class="modal-dialog modal-xl" role="document">
++            <div class="modal-content" style="height: 300px;">
++                <div class="modal-header">
++                    <a data-dismiss="modal"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="25" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
++                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
++                    </svg></a>
++                </div>
++                <div class="modal-body">
++                    <div class="row match-height">
++                        <div class="col-xl-6 col-md-6 col-12">
++                            <div id="company_details_map" class="card">
++                                <div class="card-header" style="align-items: center;">
++                                    <h4 class="card-title" id="company_titles_map" style="max-width:40%;"></h4>
++                                    <div id="shortlist_company_details_map" style="margin-left: 10%;">
++                                    </div>
++                                    <div id="company_logo_map"></div>
++                                </div>
++                                <div class="card-body">
++                                    <ul class="list-group" id="property_map">
++                                    </ul>
++                                    <br />
++                                    <p class="card-text" id="descriptions_map">
++                                    </p>
++                                </div>
++                            </div>
++                            <div id="news_map" class="card d-none">
++                                <div class="card-header d-flex flex-row justify-content-between align-items-center">
++                                    <h4 class="card-title">Company News</h4>
++                                    <ul class="btn-xl pager">
++                                        <a id="previous_page" href="javascript:void(0);" onclick="previousPage()">&#8249;</a>
++                                        <a id="next_page" href="javascript:void(0);" onclick="nextPage()">&#8250;</a>
++                                    </ul>
++                                </div>
++                                <div class="card-body" id="company_news_map">
++                                </div>
++                            </div>
++                        </div>
++                        <div class="col-xl-6 col-md-6 col-12">
++                            <div class="card" >
++                                <div style="display: flex;padding-top: 20px;
++                                    padding-left: 14px;" id="typeOfValueTool_map"
++                                    onchange="show_tool_company();">
++                                    <div id="shares_chart_radio_map" style="margin-right: 2rem;"
++                                        class="custom-control custom-radio mb-1">
++                                        <input type="radio" id="Swot_Analysis_map" name="mode"
++                                            value="SharesAnalysis" class="custom-control-input">
++                                        <label class="custom-control-label" for="Swot_Analysis_map">
++                                            Shares Chart</label>
++                                    </div>
++                                    <div id="matching-radio-map" style="margin-right: 2rem;"
++                                        class="custom-control custom-radio mb-1">
++                                        <input type="radio" id="Matching_Tool_map" name="mode"
++                                            value="MatchingTool" class="custom-control-input"
++                                            checked="">
++                                        <label class="custom-control-label" for="Matching_Tool_map">Matching
++                                            Tool</label>
++                                    </div>
++                                </div>
++                                <div id="Marketing_Tools_add_map">
++                                    <h3>Matching Tools</h3>
++                                </div>
++                                <div class="col-xl-12 col-md-6 col-12">
++                                    <div id="company_swot_map" class="card" style="display: none">
++                                        <div class="card-header d-flex flex-row justify-content-between align-items-center">
++                                        </div>
++                                        <div class="tradingview-widget-container__widget" id="mini_chart_widget">
++                                        </div>
++                                    </div>
++                                    <div id="company_matching_map" class="card">
++                                        <div class="card-body pb-50">
++                                            <div class="mb-1">
++                                                <h5>Marketing</h5>
++                                                <div id="company_matching_marketing_map"></div>
++                                            </div>
++                                            <div class="mb-1">
++                                                <h5>Legal</h5>
++                                                <div id="company_matching_legal_map"></div>
++                                            </div>
++                                            <div class="mb-1">
++                                                <h5>Financial services</h5>
++                                                <div id="company_matching_financial_map"></div>
++                                            </div>
++                                            <div class="mb-1">
++                                                <h5>Software</h5>
++                                                <div id="company_matching_software_map"></div>
++                                            </div>
++                                            <div>
++                                                <h5>Hardware</h5>
++                                                <div id="company_matching_hardware_map"></div>
++                                            </div>
++                                        </div>
++                                    </div>
++                                    <div id="perfomanceDiv_map" class="card" style="display: none">
++                                        <div class="card-header d-flex flex-row justify-content-between align-items-center">
++                                            <h4 class="card-title">Performance</h4>
++                                        </div>
++                                        <div>
++                                            <div class="card-body">
++                                                <table border="1" style="width: 100%;">
++                                                    <thead>
++                                                        <tr>
++                                                            <th>Name</th>
++                                                            <th>Value</th>
++                                                        </tr>
++                                                    </thead>
++                                                    <tbody id="table_details">
++                                                    </tbody>
++                                                </table>
++                                            </div>
++                                        </div>
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                    
++                    <div id="portfolio_govtech_investors_map" class="row match-height">
++                        <div class="col-xl-12 col-md-12 col-12">
++                            <div class="card card-statistics">
++                                <div class="card-header" style="padding: 1rem;">
++                                    <h4>Portfolio</h4>
++                                </div>
++                                <div class="card-body ">
++                                    <div class="row justify-content-start ">
++                                        <div id="investor-portfolio-list-map">
++                                        </div>
++                                    </div>
++                                </div>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    
++    
+     <!-- BEGIN: Footer-->
+     <footer id="footer" class="footer footer-static footer-light" style="display: none;">
+     </footer>

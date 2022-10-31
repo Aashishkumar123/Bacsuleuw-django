@@ -1,0 +1,1022 @@
+diff --git a/mindmap/templatetags/app_data.py b/mindmap/templatetags/app_data.py
+index a1374df7..810bc4c3 100644
+--- a/mindmap/templatetags/app_data.py
++++ b/mindmap/templatetags/app_data.py
+@@ -694,6 +694,9 @@ def getAttributeFieldNames(firm):
+ def getSuggestedBy_Html(is_public,firm):
+     firm = Firms.objects.get(id=firm)
+     return firm.getSuggestedBy_Html(is_public)
++
++
++@register.simple_tag   
+ def investor_fun(stat):
+     return stat.get('investor')
+ 
+diff --git a/mindmap/views.py b/mindmap/views.py
+index 1248ffa3..fcfe5954 100644
+--- a/mindmap/views.py
++++ b/mindmap/views.py
+@@ -3708,14 +3708,14 @@ def firms_link(request,firm):
+     other_firm = Firms.objects.filter(name=request.POST.get('name')).first()
+     firm = Firms.objects.get(id=firm)
+     if firm == other_firm.id:
+-        return ''
++        return HttpResponse('')
+     extra_params = {
+         'arrow' : request.POST.get('connection_arrow'),
+         'dash' : request.POST.get('connection_line_dash'),
+         'color' : request.POST.get('connection_color'),
+     }
+     if not firm.assignInvestmentRelationFirm(other_firm, extra_params):
+-        return ''
++        return HttpResponse('')
+     return render_to_response(
+         'components/firm-icon.html',
+         {'firm':other_firm, 'show_unassign_button':True}
+diff --git a/static/admin/krug_solid_images/krug_162.png b/static/admin/krug_solid_images/krug_162.png
+index fbf131ed..9d12edd2 100644
+Binary files a/static/admin/krug_solid_images/krug_162.png and b/static/admin/krug_solid_images/krug_162.png differ
+diff --git a/static/admin/krug_solid_images/krug_164.png b/static/admin/krug_solid_images/krug_164.png
+index 0d9262d1..b3210ec7 100644
+Binary files a/static/admin/krug_solid_images/krug_164.png and b/static/admin/krug_solid_images/krug_164.png differ
+diff --git a/templates/components/field.html b/templates/components/field.html
+deleted file mode 100644
+index d179c07e..00000000
+--- a/templates/components/field.html
++++ /dev/null
+@@ -1,10 +0,0 @@
+-{% load app_data %}
+-
+-<input type="password" class="form-control @if($has_error) is-invalid @endif" id="{% if field  %}{{field}} {% else %} {% endif %}" name="{% if field  %}{{field}} {% else %} {% endif %}"
+-placeholder="{% if placeholder == '' %}{{field|toNiceTitleCase}} {% else %} {{placeholder}}{% endif %}">
+-
+-{% comment %} @if($has_error)
+-<div class="invalid-feedback">
+- {!! $errors->form_errors->first($field) !!}
+-</div>
+-@endif {% endcomment %}
+\ No newline at end of file
+diff --git a/templates/components/firm-icon.html b/templates/components/firm-icon.html
+index bc14a9ae..e36062b3 100644
+--- a/templates/components/firm-icon.html
++++ b/templates/components/firm-icon.html
+@@ -1,7 +1,7 @@
+ {% load app_data %}
+ 
+ <div class="firm_with_logo firm_with_logo_id_{{firm.id}}" data-is_investor="{% if firm.isInvestor %} '1' {% else %} '0' {%endif%}">
+-    <a class="btn btn-light add_tooltip" href="/mind-map/dashboard/firms/{{firm.id}}/" data-firm_id="{{firm.id}}" title="{{firm.getAreaString}}" target="{% if in_new_window %}target="_blank"{% endif %}">
++    <a class="btn btn-light add_tooltip" href="{% if is_public %} {% url 'public.firms.show' firm=firm.id %} {% else %} {% url 'show_firm' firm=firm.id %} {% endif %}" data-firm_id="{{firm.id}}" title="{{firm.getAreaString}}" target="{% if in_new_window %}target="_blank"{% endif %}">
+         {% if firm.hasLogo %}
+             <span><img src="{{firm.logo.url}}" alt="{{firm.name}}" class="rounded"></span>
+             {% endif %}
+diff --git a/templates/components/group-list.html b/templates/components/group-list.html
+index fe15fc36..156304ee 100644
+--- a/templates/components/group-list.html
++++ b/templates/components/group-list.html
+@@ -42,8 +42,7 @@
+                 {{group.order}}
+             </td>
+             <td>
+-                <!-- Need to add user permission -->
+-                {% if True %}
++                {% if user.is_superuser %}
+                     <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/firms/"
+                     class=""><i class="mdi mdi-briefcase-edit"></i>
+                         {% if group.getFirmsCount %}
+@@ -61,12 +60,11 @@
+                 {% endif %}
+             </td>
+             <td>
+-                <!-- Need to add user permission -->
+-                {% if True %}
+-                <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/edit/"
+-                   class="">
+-                   <i class="mdi mdi-briefcase-edit"></i>Edit
+-                </a>
++                {% if user.is_superuser %}
++                    <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/edit/"
++                    class="">
++                    <i class="mdi mdi-briefcase-edit"></i>Edit
++                    </a>
+                 {% endif %}
+             </td>
+         </tr>
+diff --git a/templates/components/krug-list.html b/templates/components/krug-list.html
+index afd142a5..1955228e 100644
+--- a/templates/components/krug-list.html
++++ b/templates/components/krug-list.html
+@@ -58,22 +58,20 @@
+                             {{krug.get_url}}
+                         </a>
+                     </div>
+-
+-             <!-- ============== need to add user permission ============= -->
+-                    {% if user.hasPermissionToEditSomeGroupInKrug %}
++                    {% if user.is_superuser %}
+                         You are a <span class="badge badge-danger">Group Manager</span> for:
+-                    <ul>
+-                        {% for group in getGroupsUserHasPermissionToEdit %}
+-                            <li>
+-                                <a href="">
+-                                    {{group.name}}
+-                                </a>
+-                                <span class="gray">
+-                                    («<b>{{group.sector.name}}</b>» Sector)
+-                                </span>
+-                            </li>
+-                        {% endfor %}
+-                    </ul>
++                        <ul>
++                            {% for group in getGroupsUserHasPermissionToEdit %}
++                                <li>
++                                    <a href="">
++                                        {{group.name}}
++                                    </a>
++                                    <span class="gray">
++                                        («<b>{{group.sector.name}}</b>» Sector)
++                                    </span>
++                                </li>
++                            {% endfor %}
++                        </ul>
+                     {% endif %}
+                 </td>
+ 
+@@ -82,9 +80,7 @@
+                         <a href="{% url 'krug-map-detail' krug_id=krug.id %}" class="btn {% if not krug.visible %} btn-outline-primary {% else %}  btn-primary {% endif %}  mr-1 mb-1 btn-xs">
+                             <i class="mdi mdi-chart-donut-variant"></i> Map
+                         </a>
+-    
+-                    <!-- ============== need to add user permission ============= -->
+-                        {% if True %}
++                        {% if user.is_superuser %}
+                         <a href="/mind-map/dashboard/reports/{{krug.id}}/edit/" class="btn btn-outline-success btn-xs mr-1 mb-1"><i class="mdi mdi-briefcase-edit"></i>
+                             Edit</a>
+                         {% endif %}
+diff --git a/templates/components/map-lock.html b/templates/components/map-lock.html
+index d48ce17a..dcd9145a 100644
+--- a/templates/components/map-lock.html
++++ b/templates/components/map-lock.html
+@@ -41,7 +41,7 @@
+         } else {
+             seconds--;
+ 
+-            if (minutes <= 1) { // Blink button (<a>) when timer nearly expired.
++            if (minutes <= 1) {
+                 let $unlock_button = $(".locked_status a");
+ 
+                 if ($unlock_button.hasClass('btn-outline-primary')) {
+diff --git a/templates/components/model-contacts.html b/templates/components/model-contacts.html
+index e6081325..274976a4 100644
+--- a/templates/components/model-contacts.html
++++ b/templates/components/model-contacts.html
+@@ -41,7 +41,10 @@
+ {% endif %}
+ 
+ {% if request.user %}
+-<!-- Need to implement this section -->
++    <i class="mdi mdi-briefcase-edit-outline"></i>
++    <a href="" class="confirmable" target="_blank">
++    Claim Ownership
++    </a>
+ {% else %}
+     <i class="mdi mdi-briefcase-edit-outline"></i>
+     <a href="" class="confirmable" target="_blank">Register and Claim Ownership</a>
+diff --git a/templates/components/sectors-list.html b/templates/components/sectors-list.html
+index c961330c..a1a53e3b 100644
+--- a/templates/components/sectors-list.html
++++ b/templates/components/sectors-list.html
+@@ -43,20 +43,22 @@
+                     <div class="gray small">
+                         {% for group in r_sectors.groups_ordered %}
+                             {{group.getNameWithStats }}
+-                            <!--Need to add user permission-->
+-                            <a href=""><span class="badge badge-danger text-white" title="You are a Manager of this Group.">Group Manager</span></a>
+-                            <!--Need to add user permission-->
+-                            <a href=""><span class="badge badge-danger text-white" title="Group Managers:}"><i class="mdi mdi-view-grid text-white"></i> Group Managers: {{managers.count}}</span></a><br> 
++                            {% if user.is_superuser %}
++                                <a href=""><span class="badge badge-danger text-white" title="You are a Manager of this Group.">Group Manager</span></a>
++                                <a href=""><span class="badge badge-danger text-white" title="Group Managers:}"><i class="mdi mdi-view-grid text-white"></i> Group Managers: {{managers.count}}</span></a><br> 
++                            {% endif %}
+                         {% endfor %}
+                     </div>
+                 
+                 </td>
+ 
+             <td class="text-right">
+-                <!-- need to add permission -->
+-                <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sectors/{{r_sectors.id}}/edit/" class="mr-3 text-nowrap"><i class="mdi mdi-briefcase-edit"></i>Edit</a>
+-               <!-- need to add permission -->
+-                <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sector/{{r_sectors.id}}/map/" class="mr-3 text-nowrap"><i class="mdi mdi-card-bulleted"></i> Flat Map</a>
++                {% if user.is_superuser %}
++                    <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sectors/{{r_sectors.id}}/edit/" class="mr-3 text-nowrap"><i class="mdi mdi-briefcase-edit"></i>Edit</a>
++                {% endif %}    
++                {% if user.is_superuser %}
++                    <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sector/{{r_sectors.id}}/map/" class="mr-3 text-nowrap"><i class="mdi mdi-card-bulleted"></i> Flat Map</a>
++                {% endif %}
+                 <a href="/mind-map/reports/{{r_sectors.krug.id}}/sector/{{r_sectors.id}}/map/" class="mr-3 text-nowrap" target="_blank"><i class="mdi mdi-open-in-new"></i> Public Link</a>
+             </td>
+ 
+diff --git a/templates/events/create-event.html b/templates/events/create-event.html
+index 1015e4e1..fcbf39f2 100644
+--- a/templates/events/create-event.html
++++ b/templates/events/create-event.html
+@@ -141,8 +141,6 @@
+             {% csrf_token %} 
+         </form>
+     {% endif %}
+-
+-    <!-- This section is pending -->
+     {% include 'components/modal.html' with modal='select_image' btn_class='btn btn-outlined-primary' show_open_button=False title="Image Images Selector" image_url=event.image.url %}
+ {% endblock body %}
+ 
+diff --git a/templates/events/show-event.html b/templates/events/show-event.html
+index 601ec3b9..3d15b835 100644
+--- a/templates/events/show-event.html
++++ b/templates/events/show-event.html
+@@ -37,19 +37,6 @@
+     <div class="row">
+         <div class="col-6">
+             <div class="border border-light rounded p-4">
+-                <!-- Need to check once this part -->
+-                {% comment %} <!--
+-                {% for field in ['city'] %}
+-                    {% if firm.field != '' %}
+-                    <div>
+-                        <span class="gray">{{field|toNiceTitleCase}}:</span>
+-                        <strong>{{firm.field}}</strong>
+-                    </div>
+-                    {% endif %}
+-            {% endfor %} 
+-                --> {% endcomment %}
+-
+-
+                 {% if event.starts_at %}
+                     {{event.starts_at|naturaltime}}
+                 {% endif %}
+@@ -116,25 +103,24 @@
+ 
+         <div class="col-6">
+             <div class="description">
+-                <!-- Need to add user permission -->
+-                {% if event.admin_note and user.id and user.isSuperAdmin %}
+-                <div>
+-                    <div class="alert alert-info">
+-                        <i class="mdi mdi-eye-off-outline"></i>Admin Note <br>
+-                        {{event.admin_note}}
++                {% if event.admin_note and user.is_superuser %}
++                    <div>
++                        <div class="alert alert-info">
++                            <i class="mdi mdi-eye-off-outline"></i>Admin Note <br>
++                            {{event.admin_note}}
++                        </div>
+                     </div>
+-                </div>
+                 {% endif %}
+ 
+                 {% if event.description %}
+-                <div>
+-                    <div class="alert alert-light">
+-                        <div><b> Public Description</b></div>
+-                        <div class="text-justify">
+-                            {{event.description|linebreaks}}
++                    <div>
++                        <div class="alert alert-light">
++                            <div><b> Public Description</b></div>
++                            <div class="text-justify">
++                                {{event.description|linebreaks}}
++                            </div>
+                         </div>
+                     </div>
+-                </div>
+                 {% endif %}
+             </div>
+         </div>
+diff --git a/templates/faces/create-face.html b/templates/faces/create-face.html
+index 402afd3c..ba7fa77e 100644
+--- a/templates/faces/create-face.html
++++ b/templates/faces/create-face.html
+@@ -109,7 +109,6 @@
+                 </textarea>
+ 
+                 <div> 
+-                    <!-- in development -->
+                     <div class="form-group">
+                         <label for="suggested_by"> Suggested by</label>
+                         <input type="text" class="form-control suggested_by" name="suggested_by" id="suggested_by" placeholder="Alexander Great" value="{{face.getSuggestedBy_AsString}}">
+@@ -159,10 +158,7 @@
+         {% csrf_token %}
+         </form>
+     {% endif %}
+-
+-    <!-- Need to check this section -->
+     {% include 'components/modal.html' with modal='select_image' btn_class='btn btn-outlined-primary' show_open_button=False title="Image Images Selector" image_url=face.image.url %}
+-
+ {% endblock body %}
+ 
+ {% block scripts %}
+diff --git a/templates/faces/show-face.html b/templates/faces/show-face.html
+index 4212ffa9..65c83843 100644
+--- a/templates/faces/show-face.html
++++ b/templates/faces/show-face.html
+@@ -44,17 +44,6 @@
+     <div class="row">
+         <div class="col-4 ">
+             <div class="border border-light rounded p-4">
+-                {% comment %} <!-- To be implement this part
+-                    @foreach(['country'] as $field)
+-                    @if(!empty($firm[$field]))
+-                        <div>
+-                            <span class="gray">{{toNiceTitleCase($field)}}:</span>
+-                            <strong>{{$firm[$field]}}</strong>
+-                        </div>
+-                    @endif
+-                @endforeach 
+-                --> {% endcomment %}
+-
+                 {% include 'components/model-contacts.html' with model=face %}
+             </div>
+         </div>
+diff --git a/templates/firms/firm-attributes.html b/templates/firms/firm-attributes.html
+index 5b2cfb69..cd4599d6 100644
+--- a/templates/firms/firm-attributes.html
++++ b/templates/firms/firm-attributes.html
+@@ -1,84 +1,12 @@
+ {% load app_data %}
+ 
+-<div>
+-     {% if firm.technology %}
+-          <span class="gray">Technology:</span>
+-          <strong>{{firm.technology}}</strong> <br/>
++{% getAttributeFieldNames firm.id as getAttributeFieldNames %}
++{% for fields,values in getAttributeFieldNames %}
++     {% if values %}
++          <div>
++               <span class="gray">{{fields|toNiceTitleCase}}:</span>
++               <strong>{{values}}</strong>
++          </div>
+      {% endif %}
++{% endfor %}
+ 
+-     {% if firm.industry %}
+-          <span class="gray">Industry:</span>
+-          <strong>{{firm.industry}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.headquarters %}
+-          <span class="gray">Headquarters:</span>
+-          <strong>{{firm.headquarters}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.founded_date %}
+-          <span class="gray">Founded Date:</span>
+-          <strong>{{firm.founded_date}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.employee_number %}
+-          <span class="gray">Employees Number:</span>
+-          <strong>{{firm.employee_number}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.investor_type %}
+-          <span class="gray">Investor Type:</span>
+-          <strong>{{firm.investor_type}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.investment_stage %}
+-          <span class="gray">Investment Stage:</span>
+-          <strong>{{firm.investment_stage}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.number_of_exists %}
+-          <span class="gray">Number Of Exits:</span>
+-          <strong>{{firm.number_of_exists}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.acquisitions_number %}
+-     <span class="gray">Acquisitions Number:</span>
+-     <strong>{{firm.acquisitions_number}}</strong>  <br />
+-     {% endif %}
+-
+-     {% if firm.investors_number %}
+-          <span class="gray">Investors Number:</span>
+-          <strong>{{firm.investors_number}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.total_funding %}
+-     <span class="gray">Total Funding:</span>
+-     <strong>{{firm.total_funding}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.last_funding_date %}
+-          <span class="gray">Last Funding Date:</span>
+-          <strong>{{firm.last_funding_date}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.last_funding_type %}
+-          <span class="gray">Last Funding Type:</span>
+-          <strong>{{firm.last_funding_type}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.estimated_revenue %}
+-          <span class="gray">Estimated Revenue:</span>
+-          <strong>{{firm.estimated_revenue}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.funding_status %}
+-          <span class="gray">Funding Status:</span>
+-          <strong>{{firm.funding_status}}</strong> <br/>
+-     {% endif %}
+-
+-     {% if firm.zip %}
+-          <span class="gray">Zip:</span>
+-          <strong>{{firm.zip}}</strong> <br/>
+-     {% endif %}
+-
+-</div> 
+diff --git a/templates/firms/firms-import.html b/templates/firms/firms-import.html
+index dffa73c6..c7d4fe26 100644
+--- a/templates/firms/firms-import.html
++++ b/templates/firms/firms-import.html
+@@ -186,7 +186,6 @@
+                 {% include 'components/firm-icon.html' with firm=firm %}
+                 </div>
+             {% endfor %}
+-            <!--@unset($firm)-->
+             </div>
+         </div>
+     
+@@ -204,7 +203,6 @@
+                 {% include 'components/firm-icon.html' with firm=firm %}
+                 </div>
+             {% endfor %}
+-            <!--@unset($firm)-->
+             </div>
+         </div>
+     {% endif %}
+diff --git a/templates/groups/create-group.html b/templates/groups/create-group.html
+index 7a9c3713..56e44be3 100644
+--- a/templates/groups/create-group.html
++++ b/templates/groups/create-group.html
+@@ -89,15 +89,13 @@
+ {% endblock body %}
+ 
+ {% block scripts %}
+-<script>
+-  $(function() {
+-      {% comment %} let $group_names_autocomplete = @json($group_names_autocomplete, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT); {% endcomment %}
+-
+-      $(".name", ".form-editor").autocomplete({
+-          position: { my: "left top", at: "left+7 bottom", collision: "none" },
+-          minLength: 0, delay:0, autoFocus: true,
+-          source: "{% url 'group_names_autocomplete' %}"
++  <script>
++      $(function() {
++          $(".name", ".form-editor").autocomplete({
++              position: { my: "left top", at: "left+7 bottom", collision: "none" },
++              minLength: 0, delay:0, autoFocus: true,
++              source: "{% url 'group_names_autocomplete' %}"
++          });
+       });
+-  });
+-</script>
++  </script>
+ {% endblock scripts %}
+diff --git a/templates/groups/firms.html b/templates/groups/firms.html
+index 01501ffc..3cf4b638 100644
+--- a/templates/groups/firms.html
++++ b/templates/groups/firms.html
+@@ -84,10 +84,6 @@
+         </div>
+     </div>
+ </div>
+-
+-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+-    integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+ {% endblock body %}
+ 
+ {% block scripts %}
+diff --git a/templates/groups/groups-show.html b/templates/groups/groups-show.html
+index 910184ed..f96de5af 100644
+--- a/templates/groups/groups-show.html
++++ b/templates/groups/groups-show.html
+@@ -9,30 +9,32 @@
+ {% block header %}
+     <div>
+         «{{group.name}}» Group
+-        <!-- TO DO IMPLEMENT WHEN USER CREATED -->
+-        <div class="gray ml-3 mt-2" style="font-size: 65%">
+-            You are a <span class="badge badge-danger text-white"> Group Manager </span>
+-        </div>
++        {% if user.is_superuser %}
++            <div class="gray ml-3 mt-2" style="font-size: 65%">
++                You are a <span class="badge badge-danger text-white"> Group Manager </span>
++            </div>
++        {% endif %}
+     </div>
+ {% endblock %}
+ 
+ {% block header2 %}
+-    <!-- TO DO IMPLEMENT WHEN USER CREATED -->
+-    <div>
+-        <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/firms/"
+-        class="btn btn-primary mr-1 btn-xs">
+-        <i class="mdi mdi-briefcase-edit"></i> 
+-            Assign {%getFirmsTitle%}
+-            {% if group.getFirmsCount %}
+-                {{group.getFirmsCount}}
+-            {% endif %}
+-        </a>
++   {% if user.is_superuser %}
++        <div>
++            <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/firms/"
++            class="btn btn-primary mr-1 btn-xs">
++            <i class="mdi mdi-briefcase-edit"></i> 
++                Assign {%getFirmsTitle%}
++                {% if group.getFirmsCount %}
++                    {{group.getFirmsCount}}
++                {% endif %}
++            </a>
+ 
+-        <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/edit/"
+-        class="btn btn-primary btn-xs"> 
+-            <i class="mdi mdi-briefcase-edit"></i> Edit Group
+-        </a>
+-    </div>
++            <a href="/mind-map/dashboard/reports/{{group.sector.krug.id}}/sectors/{{group.sector.id}}/groups/{{group.id}}/edit/"
++            class="btn btn-primary btn-xs"> 
++                <i class="mdi mdi-briefcase-edit"></i> Edit Group
++            </a>
++        </div>
++    {% endif %}
+ {% endblock header2 %}
+ 
+ {% block body %}
+@@ -89,29 +91,30 @@
+         </div>
+     {% endif %}
+ 
+-    <!-- TO DO IMPLEMENT WHEN USER CREATED -->
+-    <div>
+-        <h5>Bulk Operations</h5>
+-        <form action="/mind-map/dashboard/group/{{group.id}}/firms/move/" method="POST">
+-           {% csrf_token %}
+-            <div class="form-group">
+-                Move firms to Group
+-                <div class="row">
+-                    <div class="col-5">
+-                        <select name="move_to_group_id" id="move_to_group_id" class="form-control">
+-                            <option value=""> - Select group to move firms to - </option>
+-                            {% for group_list in group.sector.groups_ordered %}
+-                                <option value="{{group_list.id}}">
+-                                    {{group_list.name}} ({{group_list.getFirmsCount}})
+-                                </option>
+-                            {% endfor %}
+-                        </select>
+-                    </div>
+-                    <div class="col-2">
+-                        <button type="submit" class="btn btn btn-danger confirmable"> Move </button>
++   {% if user.is_superuser %}
++        <div>
++            <h5>Bulk Operations</h5>
++            <form action="/mind-map/dashboard/group/{{group.id}}/firms/move/" method="POST">
++            {% csrf_token %}
++                <div class="form-group">
++                    Move firms to Group
++                    <div class="row">
++                        <div class="col-5">
++                            <select name="move_to_group_id" id="move_to_group_id" class="form-control">
++                                <option value=""> - Select group to move firms to - </option>
++                                {% for group_list in group.sector.groups_ordered %}
++                                    <option value="{{group_list.id}}">
++                                        {{group_list.name}} ({{group_list.getFirmsCount}})
++                                    </option>
++                                {% endfor %}
++                            </select>
++                        </div>
++                        <div class="col-2">
++                            <button type="submit" class="btn btn btn-danger confirmable"> Move </button>
++                        </div>
+                     </div>
+                 </div>
+-            </div>
+-        </form>
+-    </div>
++            </form>
++        </div>
++    {% endif %}
+ {% endblock body%}
+diff --git a/templates/institutions/show-institution.html b/templates/institutions/show-institution.html
+index e7b14204..0e50a3a5 100644
+--- a/templates/institutions/show-institution.html
++++ b/templates/institutions/show-institution.html
+@@ -38,17 +38,6 @@
+     <div class="row">
+         <div class="col-4 ">
+             <div class="border border-light rounded p-4">
+-                {% comment %} <!-- Need to implement this part
+-                    @foreach(['country'] as $field)
+-                    @if(!empty($firm[$field]))
+-                        <div>
+-                            <span class="gray">{{toNiceTitleCase($field)}}:</span>
+-                            <strong>{{$firm[$field]}}</strong>
+-                        </div>
+-                    @endif
+-                @endforeach
+-                --> {% endcomment %}
+-
+                 {% include 'components/model-contacts.html' with model=institution %}
+             </div>
+         </div>
+diff --git a/templates/krugs/analyze_investments_body.html b/templates/krugs/analyze_investments_body.html
+index 88623476..aca4f7d6 100644
+--- a/templates/krugs/analyze_investments_body.html
++++ b/templates/krugs/analyze_investments_body.html
+@@ -32,14 +32,14 @@
+                     {% groups_of_investments_main_group_of_investments groups_of_investments main_group_of_investments as groups_of_investments_main_group_of_investments %}
+                     {{ groups_of_investments_main_group_of_investments }}
+                 </b> 
+-            {% comment %} {{\Illuminate\Support\Str::plural('investment', $groups_of_investments[$main_group_of_investments])}} {% endcomment %}
++                {{groups_of_investments.main_group_of_investments|pluralize:"investment"}}
+             ).
+         </div>
+     {% endfor %}
+ 
+     <div class="border rounded bg-light m-2 p-3 mb-4 move_investors_area">
+         {{ investors_to_move|length }} listed 
+-        {% comment %} {{\Illuminate\Support\Str::plural('investor', count($investors_to_move))}} {% endcomment %}
++        {{investors_to_move|length|pluralize:"investor"}}
+         could be automatically moved to proposed Groups. (Group should exist by name. Check spelling.)
+         <br>
+         <button class="btn btn-danger move_investors_to_main_groups_button mt-3 mb-3">Move Investors to new Groups</button>
+@@ -83,7 +83,7 @@
+             and in «<b>{{ main_group_of_investments }}</b>»
+             {% groups_of_investments_main_group_of_investments groups_of_investments main_group_of_investments as groups_of_investments_main_group_of_investments %}
+             (<b class="text-danger">{{ groups_of_investments_main_group_of_investments }}</b>
+-            {% comment %} {{\Illuminate\Support\Str::plural('investment', $groups_of_investments[$main_group_of_investments])}} {% endcomment %}
++            {{groups_of_investments.main_group_of_investments|pluralize:"investment"}}
+             ).
+         </div>
+     {% endfor %}
+@@ -124,7 +124,7 @@
+         {% if current_group in groups_of_investments %}
+         {% groups_of_investments_current_group groups_of_investments current_group as groups_of_investments_current_group %}
+             with {{ groups_of_investments_current_group }}
+-            {% comment %} {{\Illuminate\Support\Str::plural('investment', $groups_of_investments[$current_group])}}. {% endcomment %}
++            {{groups_of_investments.current_group|pluralize:"investment"}}
+         {% else %}
+             <span class="font-weight-bold text-warning">
+                 with 0 investments into the same area.
+@@ -143,7 +143,7 @@
+                 <i class="mdi mdi-alert-box-outline"></i> 
+                 {% groups_of_investments_main_group_of_investments groups_of_investments main_group_of_investments as groups_of_investments_main_group_of_investments %}
+                 Seems company invests more into «{{ main_group_of_investments}}»with {{groups_of_investments_main_group_of_investments }}
+-                {% comment %} {{\Illuminate\Support\Str::plural('investment', $groups_of_investments[$main_group_of_investments])}}. {% endcomment %}
++                {{groups_of_investments.main_group_of_investments|pluralize:"investment"}}
+             </div>
+         {% endif %}
+         {% endif %}
+diff --git a/templates/krugs/analyze_logos.html b/templates/krugs/analyze_logos.html
+index e995001e..6e1e8a12 100644
+--- a/templates/krugs/analyze_logos.html
++++ b/templates/krugs/analyze_logos.html
+@@ -18,7 +18,6 @@
+ {% block scripts %}
+     <script>
+         $(function() {
+-            //autoload analysis now
+             $.ajax({
+                 type: 'GET',
+                 dataType: 'html',
+diff --git a/templates/krugs/krug-event-public.html b/templates/krugs/krug-event-public.html
+index 0e0b6979..fc892a69 100644
+--- a/templates/krugs/krug-event-public.html
++++ b/templates/krugs/krug-event-public.html
+@@ -27,16 +27,12 @@
+             </div>
+ 
+             {% if event.id == 277 or event.id == 361 or event.id == 268 or event.id == 275 %}
+-            {% comment %} {{-- ad hoc --}} {% endcomment %}
+                 <div class="red mb-3">Official Media Partner of Aging Analytics Agency</div>
+             {% endif %}
+ 
+             <div>
+-                {% comment %} TO DO {% endcomment %}
+                 {% include 'components/model-contacts.html' with model=event request=request %}
+             </div>
+-
+-
+             {% isInFuture_fun event as event_in_future %}
+             {% diffInMonths event as starts_in_months %}
+             {% diffInDays event as starts_in_days %}
+@@ -90,16 +86,6 @@
+             {% endif %}
+ 
+         </div>
+-
+-        {% comment %} {% for field in city %}
+-            {% if firm[field] %}
+-                <div>
+-                    <span class="gray">{{toNiceTitleCase(field)}}:</span>
+-                    <strong>{{firm[field]}}</strong>
+-                </div>
+-            {% endif %}
+-        {% endfor %} {% endcomment %}
+-
+     </div>
+ 
+     <div>
+diff --git a/templates/krugs/show.html b/templates/krugs/show.html
+index 037b79bf..edac6f78 100644
+--- a/templates/krugs/show.html
++++ b/templates/krugs/show.html
+@@ -173,10 +173,11 @@
+         {% include 'components/sectors-list.html' with sector=sectorsOrdered %}
+         {% endif %}
+ 
+-    <!-- need to add user auth condition -->
+-    <a href="/mind-map/dashboard/reports/{{krug.id}}/sectors/create/" class="btn btn-primary btn-sm">
+-        <i class="mdi mdi-plus-circle-outline"></i>Add New Sector
+-    </a>
++    {% if user.is_superuser %}
++        <a href="/mind-map/dashboard/reports/{{krug.id}}/sectors/create/" class="btn btn-primary btn-sm">
++            <i class="mdi mdi-plus-circle-outline"></i>Add New Sector
++        </a>
++    {% endif %}
+ 
+     <div class="float-right"></div>
+     <hr>
+@@ -216,15 +217,17 @@
+             <h1 class="mt-3">Export Firms or Faces</h1>
+         {% endif %}
+         
+-        <!-- need to add user auth condition --> 
+-        <a href="/mind-map/dashboard/firms/export?krug_id={{krug.id}}" class="mr-2">
+-            <i class="mdi mdi-database-export"></i>Firms Export Setup...
+-        </a>
++        {% if user.is_superuser %} 
++            <a href="/mind-map/dashboard/firms/export?krug_id={{krug.id}}" class="mr-2">
++                <i class="mdi mdi-database-export"></i>Firms Export Setup...
++            </a>
++        {% endif %}
+ 
+-        <!-- need to add user auth condition -->
+-        <a href="/mind-map/dashboard/faces/export/{{krug.id}}?format=csv&&krug_id={{krug.id}}" class="btn btn-outline-success btn-xs mr-2">
+-            <i class="mdi mdi-database-export"></i>Export Faces now as CSV
+-        </a>
++        {% if user.is_superuser %}
++            <a href="/mind-map/dashboard/faces/export/{{krug.id}}?format=csv&&krug_id={{krug.id}}" class="btn btn-outline-success btn-xs mr-2">
++                <i class="mdi mdi-database-export"></i>Export Faces now as CSV
++            </a>
++        {% endif %}
+ 
+         <a href="/mind-map/dashboard/faces/export/{{krug.id}}?format=xls&&krug_id={{krug.id}}" class="btn btn-outline-success btn-xs mr-2">
+             <i class="mdi mdi-database-export"></i>Export Faces now as XLS
+@@ -235,10 +238,11 @@
+         </a>
+ 
+         <h1 class="mt-3">Import</h1>
+-        <!-- need to add user auth condition -->
+-        <a href="/mind-map/dashboard/reports/{{krug.id}}/import_faces/" class="btn btn-outline-success btn-xs mr-2">
+-            <i class="mdi mdi-database-import"></i>Import Faces now as CSV
+-        </a>
++        {% if user.is_superuser %}
++                <a href="/mind-map/dashboard/reports/{{krug.id}}/import_faces/" class="btn btn-outline-success btn-xs mr-2">
++                    <i class="mdi mdi-database-import"></i>Import Faces now as CSV
++                </a>
++        {% endif %}
+ 
+         <h1 class="mt-3">Good Report Checklist</h1>
+ 
+diff --git a/templates/layouts/back.html b/templates/layouts/back.html
+index 0361c3fc..7275bbcf 100644
+--- a/templates/layouts/back.html
++++ b/templates/layouts/back.html
+@@ -14,13 +14,14 @@
+ <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#" id="logo" data-controller="{{controller}} :: {{action}}">
+     Interactive IT-Platform</a>
+-   <!-- Need to add user permission -->
+-    <input class="form-control form-control-dark w-100 search_bar" type="text" placeholder="Search {% getFirmTitle %}..." aria-label="Search">
+-    <ul class="navbar-nav px-3">
+-        <li class="nav-item text-nowrap">
+-            <a href="/a/logout/" title="Log out of the {{request.user}} account.">Logout</a>
+-        </li>
+-    </ul>
++    {% if user.is_superuser %}
++        <input class="form-control form-control-dark w-100 search_bar" type="text" placeholder="Search {% getFirmTitle %}..." aria-label="Search">
++        <ul class="navbar-nav px-3">
++            <li class="nav-item text-nowrap">
++                <a href="/a/logout/" title="Log out of the {{request.user}} account.">Logout</a>
++            </li>
++        </ul>
++    {% endif %}
+ </nav>
+ 
+ <div class="container-fluid">
+diff --git a/templates/layouts/front.html b/templates/layouts/front.html
+index 812d191d..95353755 100644
+--- a/templates/layouts/front.html
++++ b/templates/layouts/front.html
+@@ -135,20 +135,8 @@
+                 </div>
+             </div>
+         {% endif %}
+-        <!-- BODY -->
+         {% block body %}{% endblock %}
+     </main>
+-
+-    {% block modal %}   
+-        {% comment %} {% block title %}
+-            System Requirements Warning
+-        {% endblock %} {% endcomment %}
+-        {% comment %} 
+-            <div class="alert alert-info">
+-                Please note that interactive content requires a high-performance PC for proper website operation.
+-            </div> 
+-        {% endcomment %}
+-    {% endblock %}
+ {% endblock app_content %}
+ 
+ {% block scripts %}
+diff --git a/templates/public/face-icon.html b/templates/public/face-icon.html
+index 4b0bcc9a..be66404b 100644
+--- a/templates/public/face-icon.html
++++ b/templates/public/face-icon.html
+@@ -1,11 +1,6 @@
+ {% load app_face_data %}
+ 
+-<div class="face_with_logo face_with_logo_id_{{face.id}}"
+-    data-type="{{face.type}}"
+-    data-country="{{face.country}}"
+-    data-company="{{face.company}}"
+-    data-name="{{face.name}}"
+-    title="{{title}}">
++<div class="face_with_logo face_with_logo_id_{{face.id}}" data-type="{{face.type}}" data-country="{{face.country}}" data-company="{{face.company}}" data-name="{{face.name}}" title="{{title}}">
+         {% face_route_fun face krug is_public as face_route %}
+         <a class="btn btn-light" href="{% url 'fetch_face_preview_html'  face=face.id %}" data-face_id="{{face.id}}" target="_blank">
+             {% getImageFun face as getImage %}
+diff --git a/templates/public/public-show-face.html b/templates/public/public-show-face.html
+index 29490aef..ffc3dd70 100644
+--- a/templates/public/public-show-face.html
++++ b/templates/public/public-show-face.html
+@@ -4,7 +4,7 @@
+     {{face.name}} | {{krug.name}}
+ {% endblock %}
+ 
+-{% block header %} {{face.name} {% endblock %}
++{% block header %} {{face.name}} {% endblock %}
+ 
+ {% block body %}
+     <div class="row mt-3">
+diff --git a/templates/public/show-firm.html b/templates/public/show-firm.html
+index ef95eb04..db80ef1a 100644
+--- a/templates/public/show-firm.html
++++ b/templates/public/show-firm.html
+@@ -21,7 +21,7 @@
+                 </div>
+             {% endif %}
+             <div class="text-justify">{{ firm.description|linebreaks }}</div>
+-            {% include 'firms/firm-connections.html' %}
++            {% include 'firms/firm-connections.html' with firm=firm is_public=True is_inline=True krug=None %}
+         </div>
+     </div>
+     
+diff --git a/templates/sectors/create-sector.html b/templates/sectors/create-sector.html
+index 9f80ed2e..62dbcf56 100644
+--- a/templates/sectors/create-sector.html
++++ b/templates/sectors/create-sector.html
+@@ -75,34 +75,32 @@
+             </div>
+         </div>
+     </form>
+-<hr>
+-
+-{% if sector.id %}
+     <hr>
+-    <form class="form-editor float-right" action="/mind-map/dashboard/report/{{sector.krug_id}}/sector/{{sector.id}}/delete/" method="post" >
+-        {% csrf_token %}
+-        <button type="submit" class="btn btn-outline-danger confirmable" data-confirm-text="Sure to delete?" tabindex="-1">
+-            <i class="mdi mdi-trash-can-outline"></i> Delete
+-        </button>
+-    </form>
+-{% endif %}
++
++    {% if sector.id %}
++        <hr>
++        
++        <form class="form-editor float-right" action="/mind-map/dashboard/report/{{sector.krug_id}}/sector/{{sector.id}}/delete/" method="post" >
++            {% csrf_token %}
++            <button type="submit" class="btn btn-outline-danger confirmable" data-confirm-text="Sure to delete?" tabindex="-1">
++                <i class="mdi mdi-trash-can-outline"></i> Delete
++            </button>
++        </form>
++    {% endif %}
+ {% endblock body %}
+ 
+ {% block scripts %}
+-<script>
+-    $(function() {
+-        {% comment %} let $sector_names_autocomplete = @json($sector_names_autocomplete, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT); {% endcomment %}
+-
+-        $(".name", ".form-editor").autocomplete({
+-            position: { my: "left top", at: "left+7 bottom", collision: "none" },
+-            minLength: 0, delay:0, autoFocus: true,
+-            source: "{% url 'sector_names_autocomplete' %}"
++    <script>
++        $(function() {
++            $(".name", ".form-editor").autocomplete({
++                position: { my: "left top", at: "left+7 bottom", collision: "none" },
++                minLength: 0, delay:0, autoFocus: true,
++                source: "{% url 'sector_names_autocomplete' %}"
++            });
+         });
+-    });
+-
+-    function updateSlugPreview(e) {
+-        $(".slug_preview").text($(".slug").val());
+-    }
+-    $(".slug").keyup(updateSlugPreview).change(updateSlugPreview).blur(updateSlugPreview);
+-</script>
++        function updateSlugPreview(e) {
++            $(".slug_preview").text($(".slug").val());
++        }
++        $(".slug").keyup(updateSlugPreview).change(updateSlugPreview).blur(updateSlugPreview);
++    </script>
+ {% endblock scripts %}
+diff --git a/templates/sectors/sector-show.html b/templates/sectors/sector-show.html
+index bff19df3..024b8050 100644
+--- a/templates/sectors/sector-show.html
++++ b/templates/sectors/sector-show.html
+@@ -9,8 +9,7 @@
+     {% if sector.isLockedByUser %}
+         <div class="badge badge-success">Map Editing Locked</div>
+     {% elif sector.isLockedByOtherUser %}
+-        <!-- Need to add user permission -->
+-        {% if True %}
++        {% if user.is_superuser %}
+             <a href="" class="badge badge-warning" title="Locked by {{sector.getLockUser.name}} ({{ector.getLockUser.email}}) [#{{ector.getLockUser.id}}]">Map Editing Locked</a>
+         {% else %}
+             <div class="badge badge-warning">Map Editing Locked</div>
+@@ -40,8 +39,7 @@
+                 {% endif %}
+         {% endif %}
+ 
+-        <!-- Need to add user permission -->
+-        {% if True %}
++        {% if user.is_superuser %}
+             <a href="/mind-map/dashboard/reports/{{sector.krug.id}}/sectors/{{sector.id}}/edit/" class="btn btn-outline-success btn-xs">
+                 <i class="mdi mdi-briefcase-edit"></i> Edit Properties
+             </a>
+@@ -97,11 +95,10 @@
+         {% include 'components/group-list.html' with groups=sector.groups_ordered %}
+     {% endif %}
+ 
+-     <!-- Need to add user permission -->
+-    {% if True %}
+-    <a href="/mind-map/dashboard/reports/{{sector.krug.id}}/sectors/{{sector.id}}/groups/create/" class="float-right btn btn-primary">
+-        <i class="mdi mdi-plus-circle-outline"></i> Add New Group
+-    </a>
++    {% if user.is_superuser %}
++        <a href="/mind-map/dashboard/reports/{{sector.krug.id}}/sectors/{{sector.id}}/groups/create/" class="float-right btn btn-primary">
++            <i class="mdi mdi-plus-circle-outline"></i> Add New Group
++        </a>
+     {% endif %}
+ 
+ {% endblock body %}
+diff --git a/templates/users/components/assign-face.html b/templates/users/components/assign-face.html
+index 71364ca5..a0b25628 100644
+--- a/templates/users/components/assign-face.html
++++ b/templates/users/components/assign-face.html
+@@ -10,7 +10,6 @@
+         </span>
+     </h5>
+     <ul class="list-unstyled">
+-        <!-- Need to add user permission -->
+         {% for face in user.getFacesUserHasPermissionToEdit %}
+             <li class="list-inline-item">
+                 {% include 'components/face-icon.html' with face=face unassign_button_class='unassign_face' %}
+diff --git a/templates/users/components/assign-firm.html b/templates/users/components/assign-firm.html
+index 32ca90f0..bbbff6ff 100644
+--- a/templates/users/components/assign-firm.html
++++ b/templates/users/components/assign-firm.html
+@@ -15,7 +15,6 @@
+         </span>
+     </h5>
+     <ul class="list-unstyled">
+-        <!-- Need to add user permission -->
+         {% for firm in user.getFirmsUserHasPermissionToEdit %}
+             <li class="list-inline-item">
+                 {% include 'components/firm-icon.html' with firm=firm show_unassign_button=True %}
+diff --git a/templates/users/components/assign-krug.html b/templates/users/components/assign-krug.html
+index 42a85ded..6caa7ee1 100644
+--- a/templates/users/components/assign-krug.html
++++ b/templates/users/components/assign-krug.html
+@@ -20,7 +20,6 @@
+         </span>
+     </h5>
+     <ul class="list-unstyled">
+-        <!-- Need to add user permission -->
+         {% get_krugs_user_has_permission_to_edit request.user as getKrugsUserHasPermissionToEdit %}
+         {% if getKrugsUserHasPermissionToEdit %}
+             <li class="list-inline-item">

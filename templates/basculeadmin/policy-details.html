@@ -1,0 +1,844 @@
+{% extends 'basculeadmin/base.html' %}
+
+
+{% block content %}
+    <div class="card mx-auto shadow-sm" style="width: 90%;">
+        <div class="card-body pb-0">
+            <div class="d-flex flex-wrap flex-sm-nowrap mb-6">
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+                        <div class="d-flex flex-column">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="text-gray-800 fs-2 fw-bold me-3">Policy</span>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <a class="btn btn-sm btn-bg-light btn-active-color-primary me-3">
+                                Reference No. - BAS-IM-20000000-00
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-start mt-5 " style="margin: top 5rem;"  >
+                        <div class="d-flex flex-wrap">
+                            <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-4 fw-bold">Bill Type</div>
+                                </div>
+                                <div class="fw-semibold fs-6 text-gray-400">Agency Bill</div>
+                            </div>
+                            <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-4 fw-bold counted" data-kt-countup="true" 
+                                        data-kt-countup-value="75" data-kt-initialized="1">
+                                        Inception Date
+                                    </div>
+                                </div>
+                                <div class="fw-semibold fs-6 text-gray-400">1/11/2018</div>
+                            </div>
+                            <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-4 fw-bold counted" data-kt-countup="true" 
+                                        data-kt-countup-value="15000" data-kt-countup-prefix="$" 
+                                        data-kt-initialized="1">
+                                        Insured Name
+                                    </div>
+                                </div>
+                                <div class="fw-semibold fs-6 text-gray-400">
+                                    Mr. & Mrs. Collon F
+                                </div>
+                            </div>
+                            <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-4 fw-bold counted" data-kt-countup="true" 
+                                        data-kt-countup-value="15000" data-kt-countup-prefix="$" 
+                                        data-kt-initialized="1">
+                                        Agent
+                                    </div>
+                                </div>
+                                <div class="fw-semibold fs-6 text-gray-400">
+                                    Champion equine ins.
+                                </div>
+                            </div>
+                            <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-4 fw-bold counted" data-kt-countup="true" 
+                                        data-kt-countup-value="15000" data-kt-countup-prefix="$" 
+                                        data-kt-initialized="1">
+                                        Offer Renewal
+                                    </div>
+                                </div>
+                                <div class="fw-semibold fs-6 text-gray-400">Yes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card card-flush mb-xxl-10 mt-5 mx-auto" style="width:95%">
+        <div class="card-header pt-5">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold text-dark">BAS-IM-20000000-00</span>
+                <span class="text-gray-400 pt-2 fw-semibold fs-6">
+                    Created by admin on 1/11/2018
+                </span>
+            </h3>
+            <div class="card-toolbar">
+                <button class="btn btn-icon btn-color-gray-400 btn-active-color-primary justify-content-end" 
+                    data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end" data-kt-menu-overflow="true">
+                    <span class="svg-icon svg-icon-1 svg-icon-gray-300 me-n1">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="4" fill="currentColor"></rect>
+                            <rect x="11" y="11" width="2.6" height="2.6" rx="1.3" fill="currentColor"></rect>
+                            <rect x="15" y="11" width="2.6" height="2.6" rx="1.3" fill="currentColor"></rect>
+                            <rect x="7" y="11" width="2.6" height="2.6" rx="1.3" fill="currentColor"></rect>
+                        </svg>
+                    </span>
+                </button>
+                <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px" data-kt-menu="true">
+                    <div class="menu-item px-3">
+                        <div class="menu-content fs-6 text-dark fw-bold px-3 py-4">Quick Actions</div>
+                    </div>
+                    <div class="separator mb-3 opacity-75"></div>
+                    <div class="menu-item px-3">
+                        <a href="#" class="menu-link px-3">New Ticket</a>
+                    </div>
+                    <div class="menu-item px-3">
+                        <a href="#" class="menu-link px-3">New Customer</a>
+                    </div>
+                    <div class="menu-item px-3" data-kt-menu-trigger="hover" data-kt-menu-placement="right-start">
+
+                        <a href="#" class="menu-link px-3">
+                            <span class="menu-title">New Group</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+
+                        <div class="menu-sub menu-sub-dropdown w-175px py-4">
+    
+                            <div class="menu-item px-3">
+                                <a href="#" class="menu-link px-3">Admin Group</a>
+                            </div>
+    
+    
+                            <div class="menu-item px-3">
+                                <a href="#" class="menu-link px-3">Staff Group</a>
+                            </div>
+    
+    
+                            <div class="menu-item px-3">
+                                <a href="#" class="menu-link px-3">Member Group</a>
+                            </div>
+    
+                        </div>
+                    </div>
+                    <div class="menu-item px-3">
+                        <a href="#" class="menu-link px-3">New Contact</a>
+                    </div>
+                    <div class="separator mt-3 opacity-75"></div>
+                    <div class="menu-item px-3">
+                        <div class="menu-content px-3 py-3">
+                            <a class="btn btn-primary btn-sm px-4" href="#">Generate Reports</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-pills nav-pills-custom mb-3" role="tablist">
+                <li class="nav-item mb-3 me-3 me-lg-6" role="presentation">
+                    <a class="nav-link d-flex justify-content-between flex-column flex-center overflow-hidden w-80px h-85px py-4 active" data-bs-toggle="pill" href="#kt_stats_widget_1_tab_1" aria-selected="false" role="tab" tabindex="-1">
+                        <div class="nav-icon">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <span class="nav-text text-gray-700 fw-bold fs-6 lh-1">Details</span>
+                        <span class="bullet-custom position-absolute bottom-0 w-100 h-4px bg-primary"></span>
+                    </a>
+                </li>
+                <li class="nav-item mb-3 me-3 me-lg-6" role="presentation">
+                    <a class="nav-link d-flex justify-content-between flex-column flex-center overflow-hidden w-80px h-85px py-4" data-bs-toggle="pill" href="#kt_stats_widget_1_tab_2" aria-selected="false" role="tab" tabindex="-1">
+                        <div class="nav-icon">
+                            <i class="fa-solid fa-horse-head"></i>
+                        </div>
+                        <span class="nav-text text-gray-700 fw-bold fs-6 lh-1">Horses</span>
+                        <span class="bullet-custom position-absolute bottom-0 w-100 h-4px bg-primary"></span>
+                    </a>
+                </li>
+                <li class="nav-item mb-3 me-3 me-lg-6" role="presentation">
+                    <a class="nav-link d-flex justify-content-between flex-column flex-center overflow-hidden w-80px h-85px py-4" data-bs-toggle="pill" href="#kt_stats_widget_1_tab_3" aria-selected="true" role="tab">
+                        <div class="nav-icon">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <span class="nav-text text-gray-600 fw-bold fs-6 lh-1">Financial</span>
+                        <span class="bullet-custom position-absolute bottom-0 w-100 h-4px bg-primary"></span>
+                    </a>
+                </li>
+                <li class="nav-item mb-3 me-3 me-lg-6" role="presentation">
+                    <a class="nav-link d-flex justify-content-between flex-column flex-center overflow-hidden w-80px h-85px py-4" data-bs-toggle="pill" href="#kt_stats_widget_1_tab_4" aria-selected="false" role="tab" tabindex="-1">
+                        <div class="nav-icon">
+                            <i class="fa-solid fa-building-columns"></i>
+                        </div>
+                        <span class="nav-text text-gray-600 fw-bold fs-6 lh-1">Claims</span>
+                        <span class="bullet-custom position-absolute bottom-0 w-100 h-4px bg-primary"></span>
+                    </a>
+                </li>
+                <li class="nav-item mb-3 me-3 me-lg-6" role="presentation">
+                    <a class="nav-link d-flex justify-content-between flex-column flex-center overflow-hidden w-100px h-85px py-4" data-bs-toggle="pill" href="#kt_stats_widget_1_tab_5" aria-selected="false" role="tab" tabindex="-1">
+                        <div class="nav-icon">
+                            <i class="fa-regular fa-folder-open"></i>
+                        </div>
+                        <span class="nav-text text-gray-600 fw-bold fs-6 lh-1">Documents</span>
+                        <span class="bullet-custom position-absolute bottom-0 w-100 h-4px bg-primary"></span>
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="kt_stats_widget_1_tab_1" role="tabpanel">
+                    <div class="general-detail mt-5">
+                        <h1>General Details</h1>
+                        <br>
+                        <span class="text-muted">Policy Type</span>
+                        <br>
+                        <span>New</span>
+                        <br><br>
+                        <span class="text-muted">Policy Start Date </span> <span class="px-3">03/05/2018</span>
+                        - &nbsp;
+                        <span class="text-muted">Policy End Date</span><span class="px-3">03/05/2019</span>
+                        <br><br>
+                        <span class="text-muted">Policy Bound Date</span>
+                        <span class="px-3">03/09/2019</span>
+                        <br><br>
+                        <span class="text-muted">Adjuster</span>
+                        <br>
+                        <span>RJ Ketch Wquino, inc</span>
+                    </div>
+                    <br><br>
+                    <div class="insured-details mt-5">
+                        <h1>Insured Details</h1>
+                        <br>
+                        <span class="text-muted">Insured Name</span>
+                        <br>
+                        <span>Mr. Mrs, Collon F MCneil</span>
+                        <br><br>
+                        <span class="text-muted">Insured Address </span> 
+                        <br>
+                        <span>
+                            1701 Horeshore Trail,<br> Chester Spring PA 19453
+                        </span>
+                        <br><br>
+                        <span class="text-muted">Insured Email </span>
+                        <br>
+                        <span>Collenlfalcon@outlook.com</span>
+                        <br><br>
+                        <span class="text-muted">Insured Telephone </span>
+                        <br>
+                        <span>+1 836374893939</span>
+                        <br><br>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="kt_stats_widget_1_tab_2" role="tabpanel">
+                    <div class="table-responsive">
+                        <div class="card card-flush h-md-100 mt-5">
+                            <h1 class="px-5">Active Horses</h1>
+                            <div class="card-body pt-6">
+                                <div class="table-responsive">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-3 my-0 table-border">
+                                        <thead>
+                                            <tr class="fs-7 fw-bold text-gray-400 border-bottom-0">
+                                                <th class="p-0 pb-3 min-w-175px text-start">NAME</th>
+                                                <th class="p-0 pb-3 min-w-100px text-end">SEX</th>
+                                                <th class="p-0 pb-3 min-w-100px text-end">BREED</th>
+                                                <th class="p-0 pb-3 min-w-175px text-end pe-12">USE</th>
+                                                <th class="p-0 pb-3 w-125px text-end pe-7">DOB</th>
+                                                <th class="p-0 pb-3 w-50px text-end">AGE (YEARS)</th>
+                                                <th class="p-0 pb-3 w-50px text-end">SUM INSURED</th>
+                                                <th class="p-0 pb-3 w-50px text-end">STATUS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex justify-content-start flex-column">
+                                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
+                                                                Davidsaon
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">Gelding</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">Wemeblood</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">Show Jumper</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6"></span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">10</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">$1,000,000</span>
+                                                </td>
+                                                <td class="text-end pe-12">
+                                                    <span class="badge py-3 px-4 fs-7 badge-light-warning">Active</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card card-flush h-md-100">
+                            <div class="card-header pt-7">
+                               <h1>Horses Previous Status</h1>
+                            </div>
+                            <div class="card-body pt-6">
+                                <div class="table-responsive">
+                                    <table class="table table-row-dashed align-middle gs-0 gy-3 my-0">
+                                        <thead>
+                                            <tr class="fs-7 fw-bold text-gray-400 border-bottom-0">
+                                                <th class="p-0 pb-3 min-w-175px text-start">NAME</th>
+                                                <th class="p-0 pb-3 min-w-100px text-end">SEX</th>
+                                                <th class="p-0 pb-3 min-w-100px text-end">BREED</th>
+                                                <th class="p-0 pb-3 min-w-175px text-end pe-12">USE</th>
+                                                <th class="p-0 pb-3 w-125px text-end pe-7">DOB</th>
+                                                <th class="p-0 pb-3 w-50px text-end">AGE (YEARS)</th>
+                                                <th class="p-0 pb-3 w-50px text-end">SUM INSURED</th>
+                                                <th class="p-0 pb-3 w-50px text-end">STATUS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex justify-content-start flex-column">
+                                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">Davidsaon</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">Gelding</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">Wemeblood</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">Show Jumper</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6"></span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">10</span>
+                                                </td>
+                                                <td class="text-end pe-0">
+                                                    <span class="text-gray-600 fw-bold fs-6">$1,000,000</span>
+                                                </td>
+                                                <td class="text-end pe-12">
+                                                    <span class="badge py-3 px-4 fs-7 badge-light-warning">Active</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="kt_stats_widget_1_tab_3" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table align-middle gs-0 gy-4 my-0 border-bottom">
+                            <thead class="bg-dark">
+                                <tr class="fs-7 fw-bold text-gray-500">
+                                    <th class="p-0 min-w-150px d-block pt-3 px-3">Billing Method</th>
+                                    <th class="text-end min-w-140px pt-3">Split Method</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3">Recurring Payment</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3">No.of Installments</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3">Due Date</th>
+                                    <th class="text-end min-w-120px pt-3 px-3">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">Agency Bill</a>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">Equal</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">No</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">4</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">1</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">-</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="installments mt-10">
+                        <h1>Your Installments</h1>
+                        <div class="table-responsive">
+                            <table class="table align-middle gs-0 gy-4 my-0 border-bottom">
+                                <thead class="bg-dark">
+                                    <tr class="fs-7 fw-bold text-gray-500">
+                                        <th class="p-0 min-w-150px d-block pt-3 px-3">No.</th>
+                                        <th class="text-end min-w-140px pt-3">Invoice #</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Type</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Status</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Paid Date</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Due Date</th>
+                                        <th class="text-end min-w-120px pt-3 px-3">Total(Exc. Tax)</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Paid</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Outstanding</th>
+                                        <th class="pe-0 text-end min-w-120px pt-3">Tax</th>
+                                        <th class="px-3 text-end min-w-120px pt-3">Toatl(inc. Tax)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">2/4</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">1028</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Invoice</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Paid</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">-</span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
+                                                15/04/2020
+                                            </a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">2/4</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">1028</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Invoice</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Paid</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">-</span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">15/04/2020</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">2/4</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">1028</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Invoice</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Paid</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">-</span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">15/04/2020</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">2/4</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">1028</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Invoice</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Paid</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">-</span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">15/04/2020</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">2/4</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">1028</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Invoice</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">Paid</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">-</span>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">15/04/2020</a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$0.00</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-gray-800 fw-bold d-block fs-6">$6,054.00</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="kt_stats_widget_1_tab_4" role="tabpanel">
+                    <div class="table-responsive">
+                        <button type="submit" data-bs-toggle="modal" 
+                            data-bs-target="#kt_modal_new_target" class="btn btn-primary float-end">
+                            <span class="indicator-label">New Claim</span>
+                        </button>
+                        <br /><br /><br />
+                        <table class="table align-middle gs-0 gy-4 my-0 border-bottom">
+                            <thead>
+                                <tr class="fs-7 fw-bold text-gray-500">
+                                    <th class="p-0 min-w-150px d-block pt-3">Reference</th>
+                                    <th class="text-end min-w-140px pt-3">Date Opened</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3">Date Closed</th>
+                                    <th class="text-end min-w-140px pt-3">Status</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3">Payment Reference</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <a href="#"  
+                                           class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
+                                            Rj Ketch Equine
+                                        </a>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">
+                                            20/09/2022
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">
+                                            20/09/2022
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge badge-light-warning fs-7 fw-bold">
+                                            Pending
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">
+                                            #PAY238393
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="kt_stats_widget_1_tab_5" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table align-middle gs-0 gy-4 my-0 border-bottom">
+                            <thead>
+                                <tr class="fs-7 fw-bold text-gray-500">
+                                    <th class="p-0 min-w-150px d-block pt-3">Date</th>
+                                    <th class="text-end min-w-140px pt-3">Type</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3">Stage</th>
+                                    <th class="text-end min-w-140px pt-3">Adjustment</th>
+                                    <th class="pe-0 text-end min-w-120px pt-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <a href="#"  
+                                           class="text-gray-800 fw-bold text-hover-primary mb-1 fs-6">
+                                            20/09/1999
+                                        </a>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">
+                                            Agent
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-gray-800 fw-bold d-block fs-6">
+                                            Policy
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="btext-gray-800 fw-bold d-block fs-6">-</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="" class="btn btn-primary btn-sm">View</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="kt_modal_new_target" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content rounded">
+                <div class="modal-header pb-0 border-0 justify-content-end">
+                    <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-1">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
+                                <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                    <form id="kt_modal_new_target_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" action="#">
+                        <div class="mb-13 text-center">
+                            <h1 class="mb-3">Request New Clam</h1>
+                        </div>
+                        <h3>Claim Details</h3>
+                        <hr />
+                        <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span class="required">Adjuster</span>
+                            </label>
+                            <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                                <option value="1">RJ Ketch Equine inc</option>
+                                <option value="2">RJ Ketch Equine inc</option>
+                            </select>
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Adjuster Reference</span>
+                                </label>
+                                <input type="text" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Claim Status</span>
+                                </label>
+                                <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                                    <option value="1">Open</option>
+                                    <option value="2">Closed</option>
+                                </select>
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="row mt-5">
+                            <div class="col-sm-6">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Date Claim (Opened)</span>
+                                </label>
+                                <input type="date" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Date Claim (Closed)</span>
+                                </label>
+                                <input type="date" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <br /><br />
+                        <h3>Horse Details</h3>
+                        <hr />
+                        <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span class="required">Which horse is being claimed for?</span>
+                            </label>
+                            <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                                <option value="1">Select Horse</option>
+                            </select>
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="row mt-5">
+                            <div class="col-sm-4">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Cause of Lost 1</span>
+                                </label>
+                                <input type="text" class="form-control form-control-solid" placeholder="Cause Lost 1" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Cause of Lost 2</span>
+                                </label>
+                                <input type="text" class="form-control form-control-solid" placeholder="Cause Lost 2" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Cause of Lost 3</span>
+                                </label>
+                                <input type="text" class="form-control form-control-solid" placeholder="Cause Lost 3" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="row mt-5">
+                            <div class="col-sm-6">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">What is the prognosis</span>
+                                </label>
+                                <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                                    <option value="1">Select</option>
+                                </select>
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Date of Injury</span>
+                                </label>
+                                <input type="date" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <br /><br />
+                        <h3>Notification Details</h3>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Date Bascule Notified</span>
+                                </label>
+                                <input type="date" class="form-control form-control-solid" placeholder="Cause Lost 1" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Date Adjuster Notified</span>
+                                </label>
+                                <input type="date" class="form-control form-control-solid" placeholder="Cause Lost 2" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                    <span class="required">Date AJX Notified</span>
+                                </label>
+                                <input type="date" class="form-control form-control-solid" placeholder="Cause Lost 3" name="target_title">
+                                <div class="fv-plugins-message-container invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-5">
+                            <button type="reset" id="kt_modal_new_target_cancel" class="btn btn-light me-3">
+                                Cancel
+                            </button>
+                            <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
+                                <span class="indicator-label">Submit</span>
+                                <span class="indicator-progress">Please wait... 
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{%  endblock %}

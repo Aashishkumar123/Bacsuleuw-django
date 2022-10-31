@@ -1,0 +1,625 @@
+diff --git a/mindmap/mind_maps/urls.py b/mindmap/mind_maps/urls.py
+index 940603c6..f866f1f4 100644
+--- a/mindmap/mind_maps/urls.py
++++ b/mindmap/mind_maps/urls.py
+@@ -288,7 +288,7 @@ urlpatterns = [
+     path("dashboard/clear/", views.cache_clear, name="cache_clear"),
+     path("dashboard/faces/autocomplete", views.autocomplete, name="faces-autocomplete"),
+     path(
+-        "reports/<int:krug>/faces/<int:face>", views.krug_face, name="reports-krug-face"
++        "reports/<int:krug>/faces/<int:face>/", views.krug_face, name="reports-krug-face"
+     ),
+     path("reports/<int:krug>/faces/", views.krug_faces, name="reports-krug-faces"),
+     path(
+diff --git a/mindmap/models.py b/mindmap/models.py
+index 73f047b9..d64b3883 100644
+--- a/mindmap/models.py
++++ b/mindmap/models.py
+@@ -707,13 +707,13 @@ class Events(BaseModel):
+         return True if self.ends_at else False
+ 
+     def getEndDate(self):
+-        return "" if not self.ends_at else self.ends_at.strftime("%Y-%m-%d:%H:%I:%S")
++        return "" if not self.ends_at else self.ends_at.strftime("%Y-%m-%d:%H:%M:%S")
+ 
+     def getDiscountEndDate(self):
+         return (
+             ""
+             if not self.discount_ends_at
+-            else self.discount_ends_at.strftime("%Y-%m-%d:%H:%I:%S")
++            else self.discount_ends_at.strftime("%Y-%m-%d:%H:%M:%S")
+         )
+ 
+     def isFeaturedOnTop(self):
+@@ -1386,10 +1386,15 @@ class Firms(BaseModel):
+             self.connected_incoming_firmsOrdered().get(investor_id=firm.id).delete()
+ 
+     def getSuggestedBy_Model(self):
+-        if Faces.objects.filter(name__icontains=self.suggested_by).first():
+-            return Faces.objects.get(name=self.suggested_by)
+-        elif Firms.objects.filter(name__icontains=self.suggested_by).first():
+-            return Firms.objects.get(name=self.suggested_by)
++        if self.suggested_by:
++            suggested_by = self.suggested_by.replace("'",'"')
++            suggested_by = json.loads(suggested_by)
++            face_id = suggested_by.get('face_id')
++            firm_id = suggested_by.get('firm_id')
++            if face_id:
++                return Faces.objects.get(id=face_id)
++            elif firm_id:
++                return Firms.objects.get(id=firm_id)
+         return None
+     
+     def hasSuggestedBy_Model(self):
+@@ -1418,9 +1423,13 @@ class Firms(BaseModel):
+                 return f'<a href="{url}" target="_blank"> {model}</a>'
+ 
+     def getSuggestedBy_NameString(self):
+-        if not self.suggested_by :
+-            return None
+-        return self.suggested_by
++        if self.suggested_by:
++            suggested_by = self.suggested_by.replace("'",'"')
++            suggested_by = json.loads(suggested_by)
++            if not self.suggested_by or not suggested_by.get('name'):
++                return None
++            return suggested_by.get('name')
++        return ''
+ 
+     def assignInvestmentRelation(self, firm):
+         if self.id == firm.id:
+@@ -1456,11 +1465,14 @@ class Firms(BaseModel):
+             return self.firm_firm_firm_set.filter(type=None).filter(firm_id=firm.id).exists()
+         else:
+             return self.firm_firm_firm_set.filter(type=None).filter(investor_id=firm.id).exists()
+-
++ 
+     def isSuggestedBy(self):
+-        return self.suggested_by and isinstance(Firms, self.suggested_by) and (
+-            self.suggested_by.face_id or self.suggested_by.firm_id or self.suggested_by.name) 
+-
++        if self.suggested_by: 
++            suggested_by = self.suggested_by.replace("'",'"')
++            suggested_by = json.loads(suggested_by)
++            return self.suggested_by and (
++                suggested_by.get('face_id') or suggested_by.get('firm_id') or suggested_by.get('name'))
++            
+     def getOriginalSuggestedByString(self):
+         if isinstance(self.suggested_by, str):
+             return self.suggested_by
+@@ -1470,7 +1482,7 @@ class Firms(BaseModel):
+         if self.isSuggestedBy():
+             return False
+         original = self.getOriginalSuggestedByString()
+-        return original and original != '""'  # latter case is when empty string is set
++        return original and original != '""'
+ 
+     def setSuggestedBy(self, name,type=None, id=None):
+         if not name:
+@@ -1497,11 +1509,16 @@ class Firms(BaseModel):
+ 
+             self.suggested_by = {
+                 'name' : name,
+-                'type' : type,
++                'type' : str(type),
+             }
++    
++    def getSuggestedByString(self):
++        model = self.getSuggestedBy_Model()
++        if model:
++            return model.name
++        return self.getSuggestedBy_NameString()
+ 
+         
+-
+ class Type(Enum):
+     INVESTMENT = "investment"
+     CONNECTION = "connection"
+diff --git a/mindmap/templatetags/mindmap_templatetages.py b/mindmap/templatetags/mindmap_templatetages.py
+index 9470e631..9153ab5d 100644
+--- a/mindmap/templatetags/mindmap_templatetages.py
++++ b/mindmap/templatetags/mindmap_templatetages.py
+@@ -157,36 +157,8 @@ def get_reports_sub_domains():
+ 
+ 
+ @register.simple_tag
+-def get_fillble():
+-    fillable = [
+-        "name",
+-        "type",
+-        "description",
+-        "url",
+-        "technology",
+-        "industry",
+-        "admin_tags",
+-        "headquarters",
+-        "zip",
+-        "founded_date",
+-        "employees_number",
+-        "funding_status",
+-        "logo",
+-        "twitter",
+-        "org_name_url",
+-        "email",
+-        "investor_type",
+-        "investment_stage",
+-        "number_of_exits",
+-        "acquisitions_number",
+-        "investors_number",
+-        "total_funding",
+-        "estimated_revenue",
+-        "last_funding_date",
+-        "last_funding_type",
+-        "suggested_by",
+-    ]
+-    return fillable
++def get_fillable():
++    return Firms._fillable
+ 
+ 
+ @register.filter
+@@ -348,9 +320,9 @@ def get_attribute_field_names(firm):
+ 
+ 
+ @register.simple_tag
+-def get_suggested_by_html(is_public, firm):
+-    firm = Firms.objects.get(id=firm)
+-    return firm.getSuggestedBy_Html(is_public)
++def get_suggested_by_html(is_public, model):
++    model = Firms.objects.get(id=model)
++    return model.getSuggestedBy_Html(is_public)
+ 
+ 
+ @register.simple_tag
+@@ -382,34 +354,36 @@ def is_instance_of_firm(model):
+ 
+ @register.simple_tag
+ def getURL(request, object):
+-    protocol = "http://"
+-    if request.is_secure():
+-        protocol = "https://"
+-
+-    url = protocol + request.get_host() + "/mind-map/"
+-
+-    if isinstance(object, Krugs) or isinstance(object, Pages):
+-        return url + str(object.id if not object.slug else object.slug)
+-    elif isinstance(object, Sectors):
+-        return (
+-            url
+-            + str(object.krug.id if not object.krug.slug else object.krug.slug)
+-            + "/"
+-            + str(object.id if not object.slug else object.slug)
+-        )
+-    elif isinstance(object, Firms):
+-        return url + str(object.id)
+-    elif (
+-        isinstance(object, Faces)
+-        or isinstance(object, Events)
+-        or isinstance(object, Institutions)
+-    ):
+-        if object.url == "":
+-            return ""
+-        elif object.url.find("http://") == -1 and object.url.find("https://") == -1:
+-            return "https://" + object.url
+-        return object.url
+-    return url
++    if object:
++        protocol = "http://"
++        if request.is_secure():
++            protocol = "https://"
++
++        url = protocol + request.get_host() + "/mind-map/"
++
++        if isinstance(object, Krugs) or isinstance(object, Pages):
++            return url + str(object.id if not object.slug else object.slug)
++        elif isinstance(object, Sectors):
++            return (
++                url
++                + str(object.krug.id if not object.krug.slug else object.krug.slug)
++                + "/"
++                + str(object.id if not object.slug else object.slug)
++            )
++        elif isinstance(object, Firms):
++            return url + str(object.id)
++        elif (
++            isinstance(object, Faces)
++            or isinstance(object, Events)
++            or isinstance(object, Institutions)
++        ):
++            if object.url == "":
++                return ""
++            elif object.url.find("http://") == -1 and object.url.find("https://") == -1:
++                return "https://" + object.url
++            return object.url
++        return url
++    return ""
+ 
+ 
+ @register.simple_tag
+@@ -515,6 +489,7 @@ def firm_founded_fun(firm):
+ def get_index_of_firm_fun(firm, firms):
+     return firms.index(firm) + 1
+ 
++
+ @register.simple_tag
+ def krug_len(krug):
+     return 100 if len(krug.name) < 25 else 100 - (int(len(krug.name))//4)
+diff --git a/mindmap/views.py b/mindmap/views.py
+index 6bacc140..cef54c70 100644
+--- a/mindmap/views.py
++++ b/mindmap/views.py
+@@ -408,7 +408,7 @@ def show_by_js_id(request, group_id, firm):
+ def show(request, firm):
+     firm = Firms.objects.get(id=firm)
+     return render(
+-        request, "public/show-firm.html", context={"firm": firm, "li_class": True}
++        request, "public/show-firm.html", context={"firm": firm, "li_class": True,"is_public": True}
+     )
+ 
+ 
+@@ -710,6 +710,7 @@ def firm_update(request, firm):
+         if "companies/" not in logo:
+             logo = "companies/" + logo
+         edit_firm = Firms.objects.get(id=firm)
++        edit_firm.setSuggestedBy(suggested_by)
+         edit_firm.name = name
+         edit_firm.type = type
+         edit_firm.url = url
+@@ -725,7 +726,6 @@ def firm_update(request, firm):
+         edit_firm.email = email
+         edit_firm.twitter = twitter
+         edit_firm.org_name_url = org_name_url
+-        edit_firm.suggested_by = suggested_by
+         edit_firm.zip = zip
+         edit_firm.acquisitions_number = acquisitions_number
+         edit_firm.last_funding_type = last_funding_type
+@@ -811,7 +811,6 @@ def firm_store(request):
+             zip=zip,
+             twitter=twitter,
+             org_name_url=org_name_url,
+-            suggested_by=suggested_by,
+             acquisitions_number=acquisitions_number,
+             last_funding_type=last_funding_type,
+             number_of_exists=number_of_exists,
+@@ -822,6 +821,7 @@ def firm_store(request):
+             estimated_revenue=estimated_revenue,
+             investors_number=investors_number,
+         )
++        firm.setSuggestedBy(suggested_by)
+         firm.save()
+         messages.success(request, "Created!")
+     return redirect(f"/mind-map/dashboard/firms/{firm.id}/")
+@@ -893,6 +893,7 @@ def report_store(request):
+             linked_krug_id = None
+         if slug:
+             slug = slug.strip().lower()
++            slug = re.sub(r"([^A-Za-z0-9-])", "-", slug)
+         krug = Krugs(
+             name=name,
+             subtitle=subtitle,
+@@ -958,6 +959,7 @@ def report_update(request, krug):
+             linked_krug_id = None
+         if slug:
+             slug = slug.strip().lower()
++            slug = re.sub(r"([^A-Za-z0-9-])", "-", slug)
+         edit_krug = Krugs.find_by_slug_or_fail(krug)
+         edit_krug.name = name
+         edit_krug.subtitle = subtitle
+@@ -2443,7 +2445,6 @@ def faces_admin(request):
+     return render(request, "faces/index-faces.html", {"faces": faces})
+ 
+ 
+-@user_passes_test(lambda user: user.is_superuser)
+ def dashboard_search(request):
+     term = request.GET.get("term").lower()
+     if not len(term):
+diff --git a/templates/components/model-suggested_by.html b/templates/components/model-suggested_by.html
+index eb013d03..e36b8a61 100644
+--- a/templates/components/model-suggested_by.html
++++ b/templates/components/model-suggested_by.html
+@@ -1,8 +1,11 @@
++{% load mindmap_templatetages %}
++
+ {% if model.isSuggestedBy %}
+     <div class="mt-3 suggested_by">
+         Suggested by
+         {% if model.hasSuggestedBy_Model %}
+-            {{model.getSuggestedBy_Html}}
++            {% get_suggested_by_html is_public=is_public model=model.id as getSuggestedBy_Html%}
++            {{getSuggestedBy_Html|safe}}
+         {% else %}
+             {{model.getSuggestedBy_NameString}}
+         {% endif %}
+diff --git a/templates/components/sectors-list.html b/templates/components/sectors-list.html
+index 5e92bc8b..6379c96d 100644
+--- a/templates/components/sectors-list.html
++++ b/templates/components/sectors-list.html
+@@ -11,28 +11,23 @@
+     </tr>
+     </thead>
+     <tbody>
+-
+-      {% for r_sectors in sector %}
++        {% for r_sectors in sector %}
+             <tr>
+                 <td class="fit gray">{{r_sectors.id}}</td>
+-                <td class="fit text-nowrap"><a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sectors/{{r_sectors.id}}/">{{r_sectors.name}}</a></td>
++                <td class="fit text-nowrap">
++                    <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sectors/{{r_sectors.id}}/">
++                        {{r_sectors.name}}
++                    </a>
++                </td>
+                 <td class="text-nowrap d-flex">
+-                    <div class="mr-2">
+-                        {{r_sectors.order}}
+-                    </div>
++                    <div class="mr-2">{{r_sectors.order}}</div>
+                     {% if forloop.first %}
+-                        <div class="gray small">
+-                            center
+-                        </div>
++                        <div class="gray small">center</div>
+                     {% endif %}
+                     {% if forloop.last %}
+                         <div class="gray small">
+-                            <div>
+-                                outer
+-                            </div>
+-                            <div>
+-                                sector
+-                            </div>
++                            <div>outer</div>
++                            <div>sector</div>
+                         </div>
+                     {% endif %}
+                 </td>
+@@ -44,24 +39,34 @@
+                         {% for group in r_sectors.groups_ordered %}
+                             {{group.getNameWithStats }}
+                             {% if user.is_superuser %}
+-                                <a href="{% url "group-show" krug=group.sector.krug.id sector=group.sector.id group=group.id %}"><span class="badge badge-danger text-white" title="You are a Manager of this Group.">Group Manager</span></a>
+-                                <a href=""><span class="badge badge-danger text-white" title="Group Managers:}"><i class="mdi mdi-view-grid text-white"></i> Group Managers: {{managers.count}}</span></a><br> 
++                                <a href="{% url "group-show" krug=group.sector.krug.id sector=group.sector.id group=group.id %}">
++                                    <span class="badge badge-danger text-white" title="You are a Manager of this Group.">
++                                        Group Manager
++                                    </span>
++                                </a>
++                                <a href="">
++                                    <span class="badge badge-danger text-white" title="Group Managers:}">
++                                        <i class="mdi mdi-view-grid text-white"></i> Group Managers: {{managers.count}}
++                                    </span>
++                                </a>
+                             {% endif %}
++                            {% if not forloop.last %}<br />{% endif %}
+                         {% endfor %}
+                     </div>
+-                
+                 </td>
+-
+-            <td class="text-right">
+-                {% if user.is_superuser %}
+-                    <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sectors/{{r_sectors.id}}/edit/" class="mr-3 text-nowrap"><i class="mdi mdi-briefcase-edit"></i>Edit</a>
+-                {% endif %}    
+-                {% if user.is_superuser %}
+-                    <a href="{% url 'sector.map' krug=r_sectors.krug.id sector=r_sectors.id %}" class="mr-3 text-nowrap"><i class="mdi mdi-card-bulleted"></i> Flat Map</a>
+-                {% endif %}
+-                <a href="{% url 'public.sector.map' krug=r_sectors.krug.id sector=r_sectors.id %}" class="mr-3 text-nowrap" target="_blank"><i class="mdi mdi-open-in-new"></i> Public Link</a>
+-            </td>
+-
++                <td class="text-right">
++                    {% if user.is_superuser %}
++                        <a href="/mind-map/dashboard/reports/{{r_sectors.krug.id}}/sectors/{{r_sectors.id}}/edit/" class="mr-3 text-nowrap">
++                            <i class="mdi mdi-briefcase-edit"></i>Edit
++                        </a>
++                        <a href="{% url 'sector.map' krug=r_sectors.krug.id sector=r_sectors.id %}" class="mr-3 text-nowrap">
++                            <i class="mdi mdi-card-bulleted"></i> Flat Map
++                        </a>
++                    {% endif %}
++                    <a href="{% url 'public.sector.map' krug=r_sectors.krug.id sector=r_sectors.id %}" class="mr-3 text-nowrap" target="_blank">
++                        <i class="mdi mdi-open-in-new"></i> Public Link
++                    </a>
++                </td>
+             </tr>
+-      {% endfor %}
++        {% endfor %}
+     </table>
+\ No newline at end of file
+diff --git a/templates/faces/create-face.html b/templates/faces/create-face.html
+index 1b77c9b5..4305b8a8 100644
+--- a/templates/faces/create-face.html
++++ b/templates/faces/create-face.html
+@@ -94,14 +94,10 @@
+ 
+             <div class="col-md-6 mb-3">
+                 {% if user.is_superuser %}
+-                <label for="description">
+-                    <i class="mdi mdi-eye-off-outline"></i> Admin Note
+-                </label>
+-                <textarea class="form-control admin_note" id="admin_note" {% if face.admin_note|length > 200 %} rows="7" {% else %} rows="2" {% endif %}  name="admin_note" placeholder="Note...">
+-                    {% if face.admin_note %}
+-                        {{face.admin_note}}
+-                    {% endif %}
+-                </textarea>
++                    <label for="description">
++                        <i class="mdi mdi-eye-off-outline"></i> Admin Note
++                    </label>
++                    <textarea class="form-control admin_note" id="admin_note" {% if face.admin_note|length > 200 %} rows="7" {% else %} rows="2" {% endif %}  name="admin_note" placeholder="Note...">{% if face.admin_note %}{{face.admin_note}}{% endif %}</textarea>
+                 {% endif %}
+ 
+                 <label for="description"> Public Description</label>
+diff --git a/templates/firms/create-firm.html b/templates/firms/create-firm.html
+index 8e624b3a..c0fc6dba 100644
+--- a/templates/firms/create-firm.html
++++ b/templates/firms/create-firm.html
+@@ -141,12 +141,12 @@
+                 <div>
+                     <div class="form-group">
+                         <label for="suggested_by">Suggested by</label>
+-                        <input type="text" class="form-control suggested_by" name="suggested_by" id="suggested_by" placeholder="Alexander Great" value="{% if firm.suggested_by %}{{firm.suggested_by}}{% endif %}">
++                        <input type="text" class="form-control suggested_by" name="suggested_by" id="suggested_by" placeholder="Alexander Great" value="{{firm.getSuggestedByString}}">
+                         <div class="small gray mt-2">
+-                            {% if firm.suggested_by %}
++                            {% if firm.isSuggestedBy %}
+                                 Currently suggested by
+                                 {% if firm.hasSuggestedBy_Model %}
+-                                    {% get_suggested_by_html is_public=False firm=firm.id as getSuggestedBy_Html%}
++                                    {% get_suggested_by_html is_public=False model=firm.id as getSuggestedBy_Html%}
+                                     {{getSuggestedBy_Html|safe}}
+                                 {% else %}
+                                     {{firm.getSuggestedBy_NameString}}
+diff --git a/templates/firms/firms-import.html b/templates/firms/firms-import.html
+index 2099b504..64356b23 100644
+--- a/templates/firms/firms-import.html
++++ b/templates/firms/firms-import.html
+@@ -11,7 +11,7 @@
+ 
+ {% block body %}
+ 
+-    {% if request.POST|get_item:'activity' == 'dry' %}
++    {% if request.POST.activity == 'dry' %}
+         <div class="alert alert-danger"><h2>This is Dry Run.</h2> It simulates file processing, without modifying anything.
+             <br>
+         NB! We did not do anything, just tested CSV file and showed status what would happen, if file would be applied to DB.
+@@ -51,9 +51,9 @@
+         <li>
+             Supported Organisation Field Names:
+             <code>
+-                {% get_fillble as getFillble %}
+-                {% for getFillbles in getFillble %}
+-                    {{getFillbles}},
++                {% get_fillable as get_fillable %}
++                {% for get_fillables in get_fillable %}
++                    {{get_fillables}},
+                 {% endfor %} 
+                 Invested in
+             </code>
+@@ -176,7 +176,7 @@
+ 
+     {% if created_firms and created_firms|length %}
+         <h3 class="mt-3"><i class="mdi mdi-alert-circle-outline"></i>
+-            {% if request.POST|get_item:'activity' == 'dry' %} Will be {% endif %}
++            {% if request.POST.activity == 'dry' %} Will be {% endif %}
+             Added {{ getFirmsTitle }} ({{ created_firms|length }})</h3>
+         <div>New firms added to database</div>
+         <div class="alert alert-success">
+@@ -193,7 +193,7 @@
+ 
+     {% if updated_firms and updated_firms|length %}
+         <h3 class="mt-3"><i class="mdi mdi-alert-circle-outline"></i>
+-            {% if request.POST|get_item:'activity' == 'dry' %} Will be {% endif %}
++            {% if request.POST.activity == 'dry' %} Will be {% endif %}
+             Updated {{ getFirmsTitle }} ({{ updated_firms|length }})</h3>
+         <div>{{ getFirmsTitle }} that were in database, but we updated with data from CSV.</div>
+         <div class="alert alert-success">
+@@ -211,7 +211,7 @@
+         <h3 class="mt-3"><i class="mdi mdi-alert-circle-outline"></i> Skipped {{ getFirmsTitle }} ({{ skipped_firms|length }})</h3>
+         <div>Not found or skipped due to errors.
+ 
+-            {% if request.POST|get_item:'activity' == 'dry' %}
++            {% if request.POST.activity == 'dry' %}
+                 This is expected warning for Dry Run, as {{ getFirmsTitle }} were not insert into DB.
+             {% endif %}
+ 
+@@ -219,11 +219,10 @@
+         <div class="alert alert-danger">
+             {% for data in skipped_firms %}
+                 <div>
+-                    {% if not data|get_item:'name' %}
+-                    
++                    {% if not data.name %}
+                         Empty firm 'name' cell.
+                     {% else %}
+-                        {{ data|get_item:'name' }}
++                        {{ data.name }}
+                     {% endif %}
+                 </div>
+             {% endfor %}
+@@ -238,11 +237,11 @@
+             Review and add Firm/Investments manually.</div>
+         <div class="alert alert-danger">
+             {% for data in skipped_investments %}
+-            {% with data_form=data|get_item:'from' %}
++            {% with data_form=data.from %}
+                 <div>
+                     <a href="{% url 'show_firm' firm=data_form.id %}">{{ data_form.name }}</a>
+                     to
+-                    {{ data|get_item:'from' }}
++                    {{ data.from }}
+                 </div>
+             {% endwith %}
+             {% endfor%}
+@@ -251,13 +250,13 @@
+ 
+     {% if processed_investments and processed_investments|length %}
+         <h3 class="mt-3"><i class="mdi mdi-check"></i>
+-            {% if request.POST|get_item:'activity' == 'dry' %} Will be {% endif %}
++            {% if request.POST.activity == 'dry' %} Will be {% endif %}
+             Added Investments ({{ processed_investments|length }})</h3>
+         <div>Successfully added investment connections.</div>
+         <div class="alert alert-success">
+             {% for data in processed_investments %}
+                 <div>
+-                    {% with data_form=data|get_item:'from' %}
++                    {% with data_form=data.from %}
+                     {% if not data_form.id %}
+                     
+                         {{ data_form.name }}
+@@ -265,7 +264,7 @@
+                     <a href="{% url 'show_firm' firm=data_form.id %}">{{ data_form.name }}</a>
+                     {% endif %}
+                     {% endwith %}
+-                    {% with data_to=data|get_item:'to' %}
++                    {% with data_to=data.to %}
+                     to
+                     <a href="{% url 'show_firm' firm=data_to.id %}">{{ data_to.name }}</a>
+                 </div>
+@@ -280,14 +279,14 @@
+         <div class="alert alert-info">
+             {% for data in already_existed_investments %}
+                 <div>
+-                    {% with data_form=data|get_item:'from' %}
++                    {% with data_form=data.from %}
+                     {% if not data_form.id %}
+                         {{ data_form }}
+                     {% else %}
+                     <a href="{% url 'show_firm' firm=data_form.id %}">{{ data_form.name }}</a>
+                     {% endif %}
+                     {% endwith %}
+-                    {% with data_to=data|get_item:'to' %}
++                    {% with data_to=data.to %}
+                     to
+                     <a href="{% url 'show_firm' firm=data_to.id %}">{{ data_to.name }}</a>
+                     {% endwith %}
+@@ -296,7 +295,7 @@
+         </div>
+     {% endif %}
+ 
+-    {% if request.POST|get_item:'activity' == 'dry' %}
++    {% if request.POST.activity == 'dry' %}
+     <div class="alert alert-warning"><h2>This is Dry Run.</h2> It simulates file processing, without modifying anything.</div>
+     {% endif %}
+ 
+diff --git a/templates/sectors/create-sector.html b/templates/sectors/create-sector.html
+index ddcae08c..77cb133f 100644
+--- a/templates/sectors/create-sector.html
++++ b/templates/sectors/create-sector.html
+@@ -35,16 +35,15 @@
+                 <input type="text" class="form-control slug" name="slug" id="slug" placeholder="the-name-of-the-report-in-url" value="{% if sector.slug %}{{sector.slug}}{% endif %}">
+ 
+                 {% if not sector.krug.slug and not krug.slug %}
+-                    <div class="mb-2">
+-                        Note: parent Report does not have URL slug set yet.
++                    <div class="mb-2">Note: parent Report does not have URL slug set yet.
+                         <a href="{% url 'reports_create' %}?{% if sector.id %}{{sector.krug.id}}{% else %}{{krug.id}}{% endif %}">
+                             Add now
+                         </a>.
+-                    <div>
++                    </div>
+                 {% else %}
+                     <div>    
+                         <code class="small">
+-                            /{{sector.krug.get_slug_or_id}}{{krug.get_slug_or_id}}/{% if sector.slug %}<span class="slug_preview">{{sector.slug}}</span>{% endif %}
++                            /{{sector.krug.getSlugOrId}}{{krug.getSlugOrId}}/{% if sector.slug %}<span class="slug_preview">{{sector.slug}}</span>{% endif %}
+                         </code>
+                     </div>
+                 {% endif %}

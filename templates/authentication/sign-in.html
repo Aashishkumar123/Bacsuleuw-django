@@ -1,0 +1,75 @@
+{% extends "authentication/base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% providers_media_js %}
+
+
+{% block content %}
+	<div class="d-flex flex-center flex-column flex-column-fluid p-10 pb-lg-20">
+		<a href="{% url 'authentication:index' %}" class="mb-12">
+			<img alt="Logo" src="{% static 'images/logo.png' %}" class="h-40px" />
+		</a>
+		<div class="w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto">
+			<div class="messages text-danger" id="login-failed-msg" style="padding:10px;font-weight:bold;text-align:center;"></div>
+			<form class="form w-100"  method="POST" id="kt_corporate_sign_in_form" novalidate>
+				{% csrf_token %}
+				<div class="text-center mb-10">
+					<h1 class="text-dark mb-3">Sign In to Bascule</h1>
+					<div>
+						<a href="{% provider_login_url 'google' method='oauth2' %}" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+						<img alt="Logo" src="{% static 'images/google-icon.svg' %}" class="h-15px px-3">Sign in with Google
+						</a>
+					</div>
+					<div class="d-flex align-items-center my-10">
+						<div class="border-bottom border-gray-300 mw-50 w-50"></div>
+						<span class="fw-bold text-gray-400 fs-7 w-100">Or with email</span>
+						<div class="border-bottom border-gray-300 mw-50 w-50"></div>
+					</div>
+				</div>
+				<div class="fv-row mb-10">
+					<label class="form-label fs-6 fw-bolder text-dark" id="email">
+						Email
+					</label>
+					<input 
+						class="form-control form-control-lg form-control-solid" 
+						type="email" 
+						name="email" 
+						autocomplete="on" 
+						/>
+					<span id="email-validation" class="text-danger"></span>
+				</div>
+				<div class="fv-row mb-10">
+					<div class="d-flex flex-stack mb-2">
+						<label class="form-label fw-bolder text-dark fs-6 mb-0">
+							Password
+						</label>
+						<a href="/reset-password/?type=customer" 
+							class="link-primary fs-6 fw-bolder">Forgot Password ?
+						</a>
+					</div>
+					<input 
+						class="form-control form-control-lg form-control-solid" 
+						type="password" 
+						name="password" 
+						id="password" 
+						autocomplete="off" 
+						/>
+					<span id="password-validation" class="text-danger"></span>
+				</div>
+				<div class="text-center">
+					<div class="d-grid mb-10">
+						<button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+							<span class="indicator-label">Sign In</span>
+						</button>
+					</div>
+					<div class="text-center text-muted text-uppercase fw-bolder mb-5">
+						or
+					</div>
+					<div class="text-gray-500 text-center fw-bolder fs-4">Don't have an account? 
+						<a href="/account/type/" class="link-primary">Sign up</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+{% endblock content %}

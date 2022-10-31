@@ -1,0 +1,9 @@
+*.pyc
+__init__.py/
+__pycache__/
+settings.py
+# db.sqlite3
+# .idea/
+# *.sqlite3
+# db.sqlite3
+

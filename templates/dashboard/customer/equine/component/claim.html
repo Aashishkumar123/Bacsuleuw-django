@@ -1,0 +1,172 @@
+<div class="card shadow-lg bgi-no-repeat bgi-size-contain h-80px mb-lg-5" style="background-color: #1B283F; background-position: right; background-image:url('/static/images/taieri.svg')">
+    <div class="card-body d-flex justify-content-between align-item-center">
+        <h2 class="text-white fw-bold">
+            <span class="lh-lg">Request For New Claim</span>
+        </h2>
+        <div class="m-0">
+            <a class="btn btn-success fw-semibold px-6 py-3"  data-bs-toggle="modal" data-bs-target="#claim-form">
+                Claim Now
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="claim-form" tabindex="-1" style="display: none; padding-left: 0px;" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <span class="svg-icon svg-icon-1">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
+                            <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <form id="kt_modal_new_target_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" action="#">
+                    <div class="mb-13 text-center">
+                        <h1 class="mb-3">Request for new claim</h1>
+                    </div>
+                    <h3 class="fs-5">Claim Details</h3>
+                    <hr>
+                    <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
+                        <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                            <span>Adjuster</span>
+                        </label>
+                        <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                            <option value="1">RJ Ketch Equine inc</option>
+                            <option value="2">RJ Ketch Equine inc</option>
+                        </select>
+                        <div class="fv-plugins-message-container invalid-feedback"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Adjuster Reference</span>
+                            </label>
+                            <input type="text" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Claim Status</span>
+                            </label>
+                            <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                                <option value="1">Open</option>
+                                <option value="2">Closed</option>
+                            </select>
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-sm-6">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Date Claim (Opened)</span>
+                            </label>
+                            <input type="date" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Date Claim (Closed)</span>
+                            </label>
+                            <input type="date" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <h3>Horse Details</h3>
+                    <hr>
+                    <div class="d-flex flex-column mb-8 fv-row fv-plugins-icon-container">
+                        <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                            <span>Which horse is being claimed for?</span>
+                        </label>
+                        <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                            <option value="1">Select Horse</option>
+                        </select>
+                        <div class="fv-plugins-message-container invalid-feedback"></div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-sm-4">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Cause of Lost 1</span>
+                            </label>
+                            <input type="text" class="form-control form-control-solid" placeholder="Cause Lost 1" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Cause of Lost 2</span>
+                            </label>
+                            <input type="text" class="form-control form-control-solid" placeholder="Cause Lost 2" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Cause of Lost 3</span>
+                            </label>
+                            <input type="text" class="form-control form-control-solid" placeholder="Cause Lost 3" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-sm-6">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>What is the prognosis</span>
+                            </label>
+                            <select class="form-select form-select-solid" data-control="select2" data-placeholder="Select an option">
+                                <option value="1">Select</option>
+                            </select>
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Date of Injury</span>
+                            </label>
+                            <input type="date" class="form-control form-control-solid" placeholder="Adjuster Reference" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <br><br>
+                    <h3>Notification Details</h3>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Date Bascule Notified</span>
+                            </label>
+                            <input type="date" class="form-control form-control-solid" placeholder="Cause Lost 1" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Date Adjuster Notified</span>
+                            </label>
+                            <input type="date" class="form-control form-control-solid" placeholder="Cause Lost 2" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="d-flex align-items-center fs-6 fw-semibold mb-2">
+                                <span>Date AJX Notified</span>
+                            </label>
+                            <input type="date" class="form-control form-control-solid" placeholder="Cause Lost 3" name="target_title">
+                            <div class="fv-plugins-message-container invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-5">
+                        <button type="reset" data-bs-dismiss="modal" class="btn btn-light me-3">
+                            Cancel
+                        </button>
+                        <button type="submit" id="kt_modal_new_target_submit" class="btn btn-primary">
+                            <span class="indicator-label">Submit</span>
+                            <span class="indicator-progress">Please wait... 
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,929 @@
+diff --git a/mindmap/templatetags/app_data.py b/mindmap/templatetags/app_data.py
+index f2795345..39cd7bc5 100644
+--- a/mindmap/templatetags/app_data.py
++++ b/mindmap/templatetags/app_data.py
+@@ -1,45 +1,22 @@
+-import pdb
+ from django.conf import settings
+-from mindmap.models import *
+-from mindmap.views import *
+-from mindmap.helpers import *
+-import os.path
+-from django.conf import settings
+-import socket
++import re
+ from django import template
+-from django.conf import settings
+-from mindmap.models import Krugs,Institutions,Faces,Firms,Groups,Sectors,Events
++from mindmap.models import (
++    Krugs,
++    Institutions,
++    Faces,
++    Firms,
++    Groups,
++    Sectors,
++    Events,
++    Pages,
++    Features,
++    get_meta_by_key
++    )
+ 
+ register = template.Library()
+ 
+ 
+-@register.simple_tag
+-def getTitle():
+-    return 'Aging Analytics Agency'
+-
+-
+-def get_thumbnail_image(krug):
+-    if krug.thumbnail is None or not os.path('/static/assets/images/'):
+-        return krug.thumbnail
+-
+-
+-@register.simple_tag
+-def site_description(krug_name):
+-    selected_krug = Krugs.objects.get(name=krug_name)
+-    return f"{selected_krug.subtitle or selected_krug.name} | Reports | {getTitle()}"
+-
+-
+-@register.simple_tag
+-def site_title(krug_name):
+-    selected_krug = Krugs.objects.get(name=krug_name)      
+-    return selected_krug.name
+-
+-
+-@register.simple_tag
+-def thumbnail_image(request):
+-    return request.build_absolute_uri('/')
+-
+-
+ @register.simple_tag
+ def size(size):
+     size = size or 'm'
+@@ -60,71 +37,29 @@ def hasCustomHomeButton(home_button_url):
+ 
+ 
+ @register.simple_tag
+-def getCustomHomeButtonUrl(krug):
++def getCustomHomeButtonKrugUrl(krug):
+     if not str.startswith(krug.home_button_url, 'http'):
+         return f"https:// {krug.home_button_url}"
+     return krug.home_button_url
+ 
+ 
+ @register.simple_tag
+-def getCustomHomeButtonTitle(krug):
++def getCustomHomeButtonKrugTitle(krug):
+     return krug.home_button_title
+ 
+ 
+ @register.simple_tag
+-def getCustomHomeButtonUrl(page):
++def getCustomHomeButtonPageUrl(page):
+     if not str.startswith(page.home_button_url, 'http'):
+         return f"https:// {page.home_button_url}"
+     return page.home_button_url
+ 
+ 
+ @register.simple_tag
+-def getCustomHomeButtonTitle(page):
++def getCustomHomeButtonPageTitle(page):
+     return page.home_button_title
+ 
+ 
+-@register.simple_tag
+-def canModifyReportKrug(user, krug):
+-    return False
+-
+-
+-@register.simple_tag
+-def isAllReportsAdmin(user):
+-    return False
+-
+-
+-@register.simple_tag
+-def krug_len(krug):
+-    if len(krug.name):
+-        return 100
+-    else:
+-        return 100 - (len(krug.name)/4)
+-
+-
+-@register.simple_tag
+-def status(request):
+-    status = request.session.get('status')
+-    if status:
+-        return status
+-    else:
+-        return None
+-
+-
+-@register.simple_tag
+-def hasPermissionsToEditAllPages(user):
+-    return isSuperAdmin(user)
+-
+-
+-@register.simple_tag
+-def hasAnyPermissionsToEditKrug(user):
+-    return get_krugs_user_has_permission_to_edit(user)
+-
+-
+-@register.simple_tag
+-def get_krugs_user_has_permission_to_edit(user):
+-    return user.is_active and user.is_superuser
+-
+-
+ @register.simple_tag
+ def isSuperAdmin(user):
+     return user.is_active and user.is_superuser
+@@ -132,7 +67,11 @@ def isSuperAdmin(user):
+ 
+ @register.simple_tag
+ def shouldShowGroupNameBreadcrumbsOnFlatMap(meta):
+-    hide = int(get_meta_by_key(meta=meta, key='hide_flat_map_sector_breadcrumb', default=False))
++    hide = int(get_meta_by_key(
++        meta=meta,
++        key='hide_flat_map_sector_breadcrumb',
++        default=False)
++        )
+     return not hide
+ 
+ 
+@@ -235,34 +174,15 @@ def feature_related_nodes(request):
+ 
+ @register.simple_tag
+ def get_ray_label_font_size(request, DEFAULT_GROUP_LABEL_RAY_FONT_SIZE=70):
+-    return max(int(get_meta_by_key(request.GET.get('meta'), 'group_label_ray_font_size', DEFAULT_GROUP_LABEL_RAY_FONT_SIZE)),20)
++    return max(int(get_meta_by_key(
++        request.GET.get('meta'),
++        'group_label_ray_font_size', DEFAULT_GROUP_LABEL_RAY_FONT_SIZE)), 20)
+ 
+ 
+-# TODO When Endpoint created.
+ @register.simple_tag
+ def should_combine_firm_logos_as_collage(request):
+     return request.GET.get('logos_algorithm', 'collage') == 'collage'
+ 
+-# TODO When Endpoint is created
+-def get_root_directory():
+-    if not is_dev() and isDeepPharma():
+-        pass
+-
+-
+-@register.simple_tag
+-def is_dev():
+-    return socket.gethostname() == 'platform-test'
+-
+-
+-@register.simple_tag
+-def is_deep_pharma():
+-    return settings.PROJECT_TYPE == 'deeppharma'
+-
+-
+-@register.simple_tag
+-def isDeepPharma():
+-    return socket.gethostname() == 'platform.dkv.global' or socket.gethostname() == 'mindmaps.platform.dkv.global' or is_deep_pharma()
+-
+ 
+ @register.simple_tag
+ def hasLinkedKrug(krug):
+@@ -277,11 +197,6 @@ def getURL(krug):
+     return f"http://{getDomain(krug)}/{getSlugOrId(krug)}"
+ 
+ 
+-@register.simple_tag
+-def geturl(krug):
+-    return models.OneToManyField(Krugs.linked_krug_id)
+-
+-
+ @register.simple_tag
+ def getDomain(krug):
+     if isLocal():
+@@ -299,27 +214,6 @@ def isLocal():
+     return settings.DEBUG
+ 
+ 
+-@register.simple_tag
+-def getGroupsCount(sector):
+-    return sector.groups_ordered().count()
+-
+-
+-@register.simple_tag
+-def getFirmsURL(group):
+-    reg = re.sub('#\s#', '-', group.name)
+-    return f"{getURL(group.sector.krug)}/group/{group.id}-{reg}"
+-
+-
+-@register.simple_tag
+-def isLooksLikeInvestorsSector(sector):
+-    return sector.name.find('Investor') == 0
+-
+-
+-@register.simple_tag
+-def isLooksLikeInvestorsGroup(group):
+-    return group.name.find('Investor') == 0
+-
+-
+ @register.simple_tag
+ def joinable_groups(krug):
+     joinable_groups = krug.getJoinableGroups()
+@@ -333,7 +227,11 @@ def getOtherFirmsLabel(meta):
+ 
+ @register.simple_tag
+ def getInstitutionsLabel(meta):
+-    return get_meta_by_key(meta=meta, key='institutions_label', default='Institutions')
++    return get_meta_by_key(
++        meta=meta,
++        key='institutions_label',
++        default='Institutions'
++        )
+ 
+ 
+ @register.simple_tag
+@@ -341,11 +239,6 @@ def getInstitutionsCount(krug_id):
+     return Krugs.institutions_ordered(krug_id=krug_id).count()
+ 
+ 
+-@register.simple_tag
+-def filter_name():
+-    return 'headquarters' 
+-
+-
+ @register.simple_tag
+ def faces_count(krug):
+     return Krugs.get_faces_count(krug.id)
+@@ -363,12 +256,20 @@ def hasInstitutions(krug):
+ 
+ @register.simple_tag
+ def getFacesLabel(meta):
+-    return get_meta_by_key(meta=meta, key='faces_label', default='Personalities')
++    return get_meta_by_key(
++        meta=meta,
++        key='faces_label',
++        default='Personalities'
++        )
+ 
+ 
+ @register.simple_tag
+ def getEventsLabel(meta):
+-    return get_meta_by_key(meta=meta, key='events_label', default='Conferences')
++    return get_meta_by_key(
++        meta=meta,
++        key='events_label',
++        default='Conferences'
++        )
+ 
+ 
+ @register.simple_tag
+@@ -381,8 +282,8 @@ def isEnabled(request, name, user=None, default=None):
+             return bool(feature.switch)
+         if not re.match('/login|signup|regist|guest|waitlist/', name):
+             return None
+-        else:            
+-            pass # continue; as we have login feature or something for the guest
++        else:
++            pass
+     if not user and feature:
+         return bool(feature.switch)
+     if feature:
+@@ -396,32 +297,10 @@ def getCustomLogo(krug):
+         return '/static/assets/images/logo_dkaswisscognitive.png'
+ 
+ 
+-@register.simple_tag
+-def getLogo():
+-    if socket.gethostname():
+-        if 'mindmaps.aginganalytics.com':
+-            return 'assets/images/logo_aaa.png'
+-        elif 'mindmaps.ai-pharma.dka.global':
+-            return 'assets/images/logo_dka_pharma.png'
+-        elif 'mindmaps.innovationeye.com':
+-            return 'assets/images/logo_innovationeye.jpeg'
+-        elif 'mindmaps.deep-pharma.tech':
+-            return 'assets/images/logo_deep_pharma_tech.webp'
+-        elif 'mindmaps.neurotech.com':
+-            return 'assets/images/logo_neurotech.png'
+-        elif 'mindmaps.longevity.international':
+-            return 'assets/images/logo_longevity_international_text.png'
+-        else:
+-            if 'platform.dkv.global':
+-                return 'assets/images/logo_dka.png'
+-            elif 'mindmaps.dka.global':
+-                return 'assets/images/logo_dka.png'
+-
+-
+ @register.filter
+ def toNiceTitleCase(value):
+     value = value.title()
+-    return value.replace('_',' ')
++    return value.replace('_', ' ')
+ 
+ 
+ @register.simple_tag
+@@ -445,46 +324,15 @@ def getFirmsTitle():
+     return 'Organisations'
+ 
+ 
+-@register.simple_tag
+-def getFacesTitle():
+-    return 'Faces'
+-
+-
+-@register.simple_tag
+-def getEventsTitle():
+-    return 'Events'
+-
+-
+-@register.simple_tag
+-def getInstitutionsTitle():
+-    return 'Institutions'
+-
+-
+-@register.simple_tag
+-def getPagesTitle():
+-    return 'Pages'
+-
+-
+-@register.simple_tag
+-def isset(id):
+-    return isinstance(id, set)
+-
+-
+ @register.simple_tag
+ def col_number():
+-    return [6,8,9,10,11,12]
++    return [6, 8, 9, 10, 11, 12]
+ 
+ 
+ @register.simple_tag
+ def col_div(i):
+     return int(100 * i/12)
+-    
+ 
+-@register.simple_tag
+-def is_numeric(var):
+-    a = var.isnumeric()
+-    return a
+-    
+ 
+ @register.simple_tag
+ def getReportsSubDomains():
+@@ -498,11 +346,6 @@ def getReportsSubDomains():
+                'mindmaps.longevity.international',
+                ]
+     return domains
+-    
+-
+-@register.simple_tag
+-def getFirmsCount_fun(group):
+-    return group.getFirmsCount()
+ 
+ 
+ @register.simple_tag
+@@ -527,7 +370,12 @@ def getFillble():
+         'investor_type',
+         'investment_stage',
+         'number_of_exits',
+-        "acquisitions_number", "investors_number", "total_funding", "estimated_revenue", "last_funding_date", "last_funding_type",
++        "acquisitions_number",
++        "investors_number",
++        "total_funding",
++        "estimated_revenue",
++        "last_funding_date",
++        "last_funding_type",
+         'suggested_by',
+     ]
+     return fillable
+@@ -538,7 +386,7 @@ def is_string(value):
+     if isinstance(value, str):
+         return True
+     return False
+-    
++
+ 
+ @register.simple_tag
+ def sectorsOrdered(krug):
+@@ -547,125 +395,139 @@ def sectorsOrdered(krug):
+ 
+ @register.simple_tag
+ def getTypes():
+-        return [
+-            "Personality",
+-            "Academia",
+-            "Business",
+-            "Donors",
+-            "Entrepreneur",
+-            "Investors",
+-            "Investors and Donors",
+-            "Journalist",
+-            "Longevity Legends",
+-            "Longevity Financial Industry Leader",
+-            "Media Influencer",
+-            "Media and Publicity Influencers",
+-            "Pharma Corporations",
+-            "Policy Leader",
+-            "Policymaker",
+-            "Policy, Politics and Governance",
+-            "Politics and Governance Leader",
+-            "Research and Academia",
+-            "Rising Stars",
+-            "Tech Corporations",
+-            "Think Tank",
+-            "Science and Academia",
+-        ]
++    return [
++        "Personality",
++        "Academia",
++        "Business",
++        "Donors",
++        "Entrepreneur",
++        "Investors",
++        "Investors and Donors",
++        "Journalist",
++        "Longevity Legends",
++        "Longevity Financial Industry Leader",
++        "Media Influencer",
++        "Media and Publicity Influencers",
++        "Pharma Corporations",
++        "Policy Leader",
++        "Policymaker",
++        "Policy, Politics and Governance",
++        "Politics and Governance Leader",
++        "Research and Academia",
++        "Rising Stars",
++        "Tech Corporations",
++        "Think Tank",
++        "Science and Academia",
++    ]
+ 
+ 
+ @register.simple_tag
+ def getType():
+-        return [Institutions.INSTITUTION, Institutions.UNIVERSITY, Institutions.RESEARCH_INSTITUTE, Institutions.THINK_TANK]
++    return [
++        Institutions.INSTITUTION,
++        Institutions.UNIVERSITY,
++        Institutions.RESEARCH_INSTITUTE,
++        Institutions.THINK_TANK
++        ]
++
+ 
+ @register.simple_tag
+ def breadcrumbs(value):
+     breadcrumbs = []
+     breadcrumbs_values = []
+-    breadcrumbs_value = ''
+     action = ''
+     controller = ''
+     no_active_link_for_actions = ['show']
+     model = value
+     if model:
+-        if isinstance(model,Krugs) or isinstance(model,Sectors) or isinstance(model,Groups):
++        if (isinstance(model, Krugs) or
++                isinstance(model, Sectors) or isinstance(model, Groups)):
+             breadcrumbs.append('/mind-map/dashboard/reports/')
+             breadcrumbs_values.append('Reports')
+-        if isinstance(model,Krugs):
++        if isinstance(model, Krugs):
+             breadcrumbs.append(f'/mind-map/dashboard/reports/{model.id}/')
+             breadcrumbs_values.append(model)
+-        elif isinstance(model,Sectors):
++        elif isinstance(model, Sectors):
+             breadcrumbs.append(f'/mind-map/dashboard/reports/{model.krug.id}/')
+             breadcrumbs_values.append(model.krug)
+-            if controller == 'SectorController' and action in no_active_link_for_actions:
++            if (controller == 'SectorController' and
++                    action in no_active_link_for_actions):
+                 pass
+             else:
+-                breadcrumbs.append(f'/mind-map/dashboard/reports/{model.krug.id}/sectors/{model.id}/')
++                breadcrumbs.append(
++                    f'''
++                    /mind-map/dashboard/reports/{model.krug.id}/sectors/{model.id}/
++                    '''
++                    )
+                 breadcrumbs_values.append(model)
+-        elif isinstance(model,Groups):
+-            breadcrumbs.append(f'/mind-map/dashboard/reports/{model.sector.krug.id}/')
++        elif isinstance(model, Groups):
++            breadcrumbs.append(
++                f'''
++                /mind-map/dashboard/reports/{model.sector.krug.id}/
++                '''
++                )
+             breadcrumbs_values.append(model.sector.krug)
+-            breadcrumbs.append(f'/mind-map/dashboard/reports/{model.sector.krug_id}/sectors/{model.sector.id}/')
++            breadcrumbs.append(
++                f'''
++                /mind-map/dashboard/reports/{model.sector.krug_id}/sectors/{model.sector.id}/
++                '''
++                )
+             breadcrumbs_values.append(model.sector)
+-            if controller == 'GroupController' and action in no_active_link_for_actions:
++            if(
++                controller == 'GroupController'
++                    and
++                    action in no_active_link_for_actions):
+                 pass
+             else:
+-                breadcrumbs.append(f'/mind-map/dashboard/reports/{model.sector.krug_id}/sectors/{model.sector_id}/groups/{model.id}/')
++                breadcrumbs.append(
++                    f'''
++                    /mind-map/dashboard/reports/
++                    {model.sector.krug_id}/sectors/{model.sector_id}/groups/{model.id}/
++                    '''
++                    )
+                 breadcrumbs_values.append(model)
+-        elif isinstance(model,Faces):
++        elif isinstance(model, Faces):
+             breadcrumbs.append(f'/mind-map/dashboard/faces/')
+             breadcrumbs_values.append('Faces')
+             breadcrumbs.append(f'/mind-map/dashboard/faces/{model.id}/')
+             breadcrumbs_values.append(model)
+-        elif isinstance(model,Pages):
++        elif isinstance(model, Pages):
+             breadcrumbs.append(f'/mind-map/dashboard/pages/')
+             breadcrumbs_values.append('Pages')
+             breadcrumbs.append(f'/mind-map/dashboard/pages/{model.id}/')
+             breadcrumbs_values.append(model)
+-        elif isinstance(model,Events):
++        elif isinstance(model, Events):
+             breadcrumbs.append(f'/mind-map/dashboard/events/')
+             breadcrumbs_values.append('Events')
+             breadcrumbs.append(f'/mind-map/dashboard/events/{model.id}/')
+             breadcrumbs_values.append(model)
+-        elif isinstance(model,Institutions):
++        elif isinstance(model, Institutions):
+             breadcrumbs.append(f'/mind-map/dashboard/institutions/')
+             breadcrumbs_values.append('Institutions')
+             breadcrumbs.append(f'/mind-map/dashboard/institutions/{model.id}/')
+             breadcrumbs_values.append(model)
+-        elif isinstance(model,Firms):
++        elif isinstance(model, Firms):
+             breadcrumbs.append(f'/mind-map/dashboard/firms/')
+             breadcrumbs_values.append('Organisation')
+             breadcrumbs.append(f'/mind-map/dashboard/firms/{model.id}/')
+             breadcrumbs_values.append(model)
+         if action == 'index':
+-            if isinstance(model,Krugs):
++            if isinstance(model, Krugs):
+                 breadcrumbs.append('')
+                 breadcrumbs_values.append('Sectors List')
+-            elif isinstance(model,Sectors):
++            elif isinstance(model, Sectors):
+                 breadcrumbs.append('')
+                 breadcrumbs_values.append('Group List')
+-            elif isinstance(model,Groups):
++            elif isinstance(model, Groups):
+                 breadcrumbs.append('')
+                 breadcrumbs_values.append('Organisation')
+-    return list(zip(breadcrumbs,breadcrumbs_values))
+-
+-
+-
+-@register.simple_tag
+-def lock_minutes_fun(sector):
+-    return sector.timeUntilAutoUnlock(True)[0]
+-
+-
+-@register.simple_tag
+-def lock_seconds_fun(sector):
+-    seconds = sector.timeUntilAutoUnlock(True)[1]
+-    if seconds < 10:
+-        seconds = '0' + seconds
+-    return seconds
++    import pdb;pdb.set_trace()
++    return list(zip(breadcrumbs, breadcrumbs_values))
+ 
+ 
+ @register.filter
+-def number_format(group_count,value):
+-    return round(group_count/value,1)
++def number_format(group_count, value):
++    return round(group_count/value, 1)
+ 
+ 
+ @register.simple_tag
+@@ -676,16 +538,16 @@ def getAttributeFieldNames(firm):
+     for field in firm.getAttributeFieldNames():
+         fields.append(field)
+         values.append(firm.__dict__[field])
+-    return list(zip(fields,values))
++    return list(zip(fields, values))
+ 
+ 
+ @register.simple_tag
+-def getSuggestedBy_Html(is_public,firm):
++def getSuggestedBy_Html(is_public, firm):
+     firm = Firms.objects.get(id=firm)
+     return firm.getSuggestedBy_Html(is_public)
+ 
+ 
+-@register.simple_tag   
++@register.simple_tag
+ def investor_fun(stat):
+     return stat.get('investor')
+ 
+@@ -711,7 +573,10 @@ def groups_of_investments_current_group(groups_of_investments, current_group):
+ 
+ 
+ @register.simple_tag
+-def groups_of_investments_main_group_of_investments(groups_of_investments, main_group_of_investments):
++def groups_of_investments_main_group_of_investments(
++        groups_of_investments,
++        main_group_of_investments
++        ):
+     return groups_of_investments.get(main_group_of_investments)
+ 
+ 
+@@ -730,11 +595,11 @@ def getInstitutionsTypesAndCounts(krug_id):
+     types = {}
+     for item in Krugs.institutions_ordered(krug_id=krug_id):
+         if(not types.get(item.institution.type)):
+-            types[item.institution.type] = 0;
++            types[item.institution.type] = 0
+         types[item.institution.type] = types.get(item.institution.type) + 1
+     return types
+ 
+-    
++
+ @register.filter
+ def get_item(dictionary, key):
+     return dictionary.get(key, '')
+diff --git a/mindmap/templatetags/app_face_data.py b/mindmap/templatetags/app_face_data.py
+index 9360b332..096d46a1 100644
+--- a/mindmap/templatetags/app_face_data.py
++++ b/mindmap/templatetags/app_face_data.py
+@@ -1,21 +1,10 @@
+-from mindmap.models import *
+-from mindmap.views import *
+ from django import template
+-from mindmap.models import Krugs, EventKrug, Flags
++from mindmap.models import Events
+ import datetime
+ 
+ register = template.Library()
+ 
+ 
+-def getRequestOwnershipForFirmFlag(user, firm):
+-    OWNERSHIP_REQUEST = 'ownership_request'
+-    return Flags.objects.filter(name = OWNERSHIP_REQUEST, model='firm', model_id=firm.id, user=user.id)
+-
+-
+-def hasPermissionTo(user, firm):
+-    return user.is_active and user.is_superuser
+-
+-
+ @register.simple_tag
+ def krugfacesOrderedAndGrouped(krug):
+     return krug.facesOrderedAndGrouped()
+@@ -42,8 +31,8 @@ def get_krug_events_fun(krug):
+ def getImage_fun(event):
+     res = event.getImage()
+     return res
+-    
+-    
++
++
+ @register.simple_tag
+ def WhereNotIn_fun(krug):
+     result = krug.WhereNotIn()
+@@ -59,14 +48,14 @@ def krug_event(krug):
+ @register.simple_tag
+ def eventsOrderedNotEnded_fun(krug):
+     return krug.eventsOrderedNotEnded()
+-    
+ 
+-@register.simple_tag  
++
++@register.simple_tag
+ def eventsOrderedEnded_fun(krug):
+     return krug.eventsOrderedEnded()
+ 
+ 
+-@register.simple_tag 
++@register.simple_tag
+ def isFeaturedOnTop_fun(event):
+     return event.isFeaturedOnTop()
+ 
+@@ -135,32 +124,6 @@ def isMeaningful_fun(string):
+     return False
+ 
+ 
+-@register.simple_tag
+-def classname(obj):
+-    return obj.__class__.__name__
+-
+-
+-@register.simple_tag
+-def get_user_fun(request):
+-    return request.user
+-    
+-
+-@register.simple_tag
+-def filter_name_fun():
+-    return ['type', 'company', 'country']
+-
+-
+-@register.simple_tag
+-def face_route_fun(face, krug, is_public):
+-    if not krug or not krug.id:
+-        face_route = f'/reports/faces/{face.id}'
+-    elif is_public:
+-        face_route = f'/dashboard/reports/{krug.id}/faces/{face.id}'
+-    else:
+-        face_route = 'fetch_face_preview_html'
+-    return face_route
+-
+-
+ @register.simple_tag
+ def krug_faces_fun(krug):
+     return krug.faces.order_by('name')
+@@ -174,4 +137,3 @@ def krug_events_fun(krug):
+ @register.simple_tag
+ def krug_institutions_fun(krug):
+     return krug.institutions.order_by('name')
+-    
+\ No newline at end of file
+diff --git a/mindmap/templatetags/app_firm_data.py b/mindmap/templatetags/app_firm_data.py
+index 03c49d32..31afe470 100644
+--- a/mindmap/templatetags/app_firm_data.py
++++ b/mindmap/templatetags/app_firm_data.py
+@@ -98,4 +98,4 @@ def get_index_of_firm_fun(firm, firms):
+ 
+ @register.simple_tag
+ def firm_route_fun(firm):
+-    return f'/mind-map/firms/{firm.id}/'
+\ No newline at end of file
++    return f'/mind-map/firms/{firm.id}/'
+diff --git a/mindmap/templatetags/front_data.py b/mindmap/templatetags/front_data.py
+index c240a949..e69de29b 100644
+--- a/mindmap/templatetags/front_data.py
++++ b/mindmap/templatetags/front_data.py
+@@ -1,66 +0,0 @@
+-from mindmap.views import *
+-from django import template
+-from mindmap.models import get_meta_by_key
+-
+-register = template.Library()
+-
+-
+-def display_size(display, size):
+-    display = display or 'none'
+-    size = size or 'm'
+-    if display == 'none':
+-        display = ' style="display: none;" '
+-
+-
+-def no_menu(no_menu):
+-    no_menu = no_menu or False
+-
+-
+-@register.simple_tag
+-def has_custom_home_button(krug):
+-    return len(krug.home_button_url) >= 5
+-
+-
+-@register.simple_tag
+-def get_custom_home_button_url(krug):
+-    if not str.startswith(krug.home_button_url, 'http'):
+-        return f"https:// {krug.home_button_url}"
+-    return krug.home_button_url
+-
+-
+-@register.simple_tag
+-def get_custom_home_button_title(krug):
+-    return krug.home_button_title
+-
+-
+-@register.simple_tag
+-def get_custom_home_button_url(page):
+-    if not str.startswith(page.home_button_url, 'http'):
+-        return f"https:// {page.home_button_url}"
+-    return page.home_button_url
+-
+-
+-@register.simple_tag
+-def get_custom_home_button_title(page):
+-    return page.home_button_title
+-
+-
+-@register.simple_tag
+-def can_modify_report_krug(user, krug):
+-    return is_super_admin(user)
+-
+-
+-@register.simple_tag
+-def is_super_admin(user):
+-    return user.is_active and user.is_superuser
+-
+-
+-@register.simple_tag
+-def should_show_group_name_breadcrumbs_on_flat_map(krug):
+-    hide = get_meta_by_key('hide_flat_map_sector_breadcrumb', False)
+-    return not hide
+-
+-
+-@register.simple_tag
+-def get_faces_label(meta):
+-    return get_meta_by_key(meta=meta, key='faces_label', default='Personalities')
+diff --git a/static/admin/krug_solid_images/krug_162.png b/static/admin/krug_solid_images/krug_162.png
+index fbf131ed..9d12edd2 100644
+Binary files a/static/admin/krug_solid_images/krug_162.png and b/static/admin/krug_solid_images/krug_162.png differ
+diff --git a/templates/layouts/front.html b/templates/layouts/front.html
+index f6709c47..d2d3b700 100644
+--- a/templates/layouts/front.html
++++ b/templates/layouts/front.html
+@@ -14,12 +14,12 @@
+                     {% hasCustomHomeButton page.home_button_url as hasCustomHomeButton_page %}
+                     {% if krug and hasCustomHomeButtonKrug %}
+ 
+-                    <a href="{% getCustomHomeButtonUrl krug %}" class="add_tooltip" title="{% getCustomHomeButtonTitle krug %}" target="_blank">
++                    <a href="{% getCustomHomeButtonKrugUrl krug %}" class="add_tooltip" title="{% getCustomHomeButtonKrugTitle krug %}" target="_blank">
+                         <i class="mdi mdi-home-circle" style="line-height: 1"></i>
+                     </a>                    
+                     {% elif page and hasCustomHomeButton_page %}
+-                        <a href="{% getCustomHomeButtonUrl page %}" class="add_tooltip" title="{% getCustomHomeButtonTitle page %}" target="_blank">
+-                            <i class="mdi mdi-home-circle mr-2" style="line-height: 1"></i>{% getCustomHomeButtonTitle page %}
++                        <a href="{% getCustomHomeButtonPageUrl page %}" class="add_tooltip" title="{% getCustomHomeButtonPageTitle page %}" target="_blank">
++                            <i class="mdi mdi-home-circle mr-2" style="line-height: 1"></i>{% getCustomHomeButtonPageTitle page %}
+                         </a>
+                     {% else %}
+                         <a href="{% url 'mindmap_root' %}" class="add_tooltip" title="See All Reports">
+@@ -41,13 +41,11 @@
+                             <span style="font-size: {{krug_len}}">{{krug.name}}</span>
+                         </a>
+                     </li>
+-                    <!-- TODO PHP Method is used -->
+-                    {% canModifyReportKrug user krug as canModifyReportKruguser %}
+-                    {% if request.user.id and canModifyReportKruguser %}
++                    {% if user.is_superuser %}
+                         <li class="nav-link text-nowrap">
+-                            <!-- TODO When Endpoint is Created -->
+-                            <a href="#" class="add_tooltip" target="_blank"
+-                                title="Edit krug (this icon is visible because you are a logged in admin.)"><i class="mdi mdi-pencil mr-1"></i></a>
++                            <a href="{% url 'show_krug' krug=krug.id %}" class="add_tooltip" target="_blank"
++                                title="Edit krug (this icon is visible because you are a logged in admin.)"><i class="mdi mdi-pencil mr-1"></i>
++                            </a>
+                         </li>
+                     {% endif %}
+                 {% endif %}
+@@ -86,10 +84,9 @@
+                 {% endif %}
+ 
+                 {% if page %}
+-                    {% hasPermissionsToEditAllPages request.user as hasPermissionsToEditAllPages %}
+-                    {% if request.user.id and hasPermissionsToEditAllPages %}
++                    {% if user.is_superuser %}
+                         <li class="nav-link text-nowrap">
+-                            <a href="#" class="add_tooltip" title="Edit page (this icon is visible because you are a logged in admin.)"><i class="mdi mdi-pencil mr-1"></i></a>
++                            <a href="{% url 'show_page' page=page.id %}" class="add_tooltip" title="Edit page (this icon is visible because you are a logged in admin.)"><i class="mdi mdi-pencil mr-1"></i></a>
+                         </li>
+                     {% endif %}
+                 {% endif %}
+@@ -123,15 +120,14 @@
+     {% endif %}
+ 
+     <main class="container-fluid">
+-        {% status request as statusrequest %}
+-        {% if statusrequest %}
+-            <div class="m-3">
+-                <div class="alert alert-success alert-dismissible">
+-                    {% status request %}
+-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+-                        <span aria-hidden="true">&times;</span>
+-                    </button>
+-                </div>
++        {% if messages %}
++            <div class="alert alert-success alert-dismissible">
++                {% for message in messages %}
++                    {{ message }}
++                {% endfor %}
++                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
++                    <span aria-hidden="true">&times;</span>
++                </button>
+             </div>
+         {% endif %}
+         {% block body %}{% endblock %}
+diff --git a/templates/users/components/assign-krug.html b/templates/users/components/assign-krug.html
+index 6caa7ee1..691297ce 100644
+--- a/templates/users/components/assign-krug.html
++++ b/templates/users/components/assign-krug.html
+@@ -14,14 +14,12 @@
+ <div class="krugs_with_permission_to_edit">
+     <h5 class="mt-4">
+         Has Permissions to Edit these Reports: 
+-        {% hasAnyPermissionsToEditKrug request.user as hasAnyPermissionsToEditKrug %}
+-        <span class="krugs_with_permission_to_edit_none" {% if hasAnyPermissionsToEditKrug %}style="display:none;"{% endif %}>
++        <span class="krugs_with_permission_to_edit_none" {% if user.is_superuser %}style="display:none;"{% endif %}>
+             none.
+         </span>
+     </h5>
+     <ul class="list-unstyled">
+-        {% get_krugs_user_has_permission_to_edit request.user as getKrugsUserHasPermissionToEdit %}
+-        {% if getKrugsUserHasPermissionToEdit %}
++        {% if user.is_superuser %}
+             <li class="list-inline-item">
+                 {% include 'components/krug-icon.html' with krug=krug unassign_button_class='unassign_krug' %}
+             </li>

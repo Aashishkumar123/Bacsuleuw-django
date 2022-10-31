@@ -1,0 +1,151 @@
+{% extends 'basculeadmin/base.html' %}
+
+
+{% block content %}
+<div class="card mb-5 mb-xl-8">
+	<div class="card-header border-0 pt-5">
+		<h3 class="card-title align-items-start flex-column">
+			<span class="card-label fw-bold fs-3 mb-1">Agency Information</span>
+		</h3>
+		
+	</div>
+	
+	<div class="content flex-column-fluid" id="kt_content" data-select2-id="select2-data-kt_content">
+		<div class="card" data-select2-id="select2-data-133-psuk">
+
+			<div class="card-body py-4" id="divcardbody">
+				<div id="kt_table_users_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer"><div class="table-responsive"><table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" id="kt_table_users">
+					<thead>
+						<tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+							
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="User: activate to sort column ascending" style="width: 215.016px;">Full Name</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Role: activate to sort column ascending" style="width: 125px;">Email</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Last login: activate to sort column ascending" style="width: 125px;">Agency Name</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Two-step: activate to sort column ascending" style="width: 125px;">Agency Address</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Joined Date: activate to sort column ascending" style="width: 125px;">Agency State</th>
+							<th class="text-end min-w-100px sorting_disabled" rowspan="1" colspan="1" aria-label="Actions" style="width: 100px;">Agency City</th></tr>
+					</thead>
+			
+					<tbody class="text-gray-600 fw-semibold" id="searcheduser">
+						{% for user in agency_info %}
+					<tr class="odd">
+							
+							<td class="d-flex align-items-center">
+								
+								<div class="d-flex flex-column">
+									<a href="/metronic8/demo14/../demo14/apps/user-management/users/view.html" class="text-gray-800 text-hover-primary mb-1">{{user.user.first_name}} {{user.user.last_name}}</a>
+									<span></span>
+								</div>
+							</td>
+
+							<td>{{user.user.email}}</td>
+							
+							<td>
+								{{user.agency_name}}
+							</td>
+							<td>
+								{{user.agency_address}}
+							</td>
+							<td>
+								{{user.state}} 
+							 </td>
+							
+							<td>
+                                {{user.city}}
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table></div>
+				
+			</div>
+		</div>
+	</div>
+	
+
+</div>
+</div>
+<div class="card mb-5 mb-xl-8">
+	<div class="card-header border-0 pt-5">
+		<h3 class="card-title align-items-start flex-column">
+			<span class="card-label fw-bold fs-3 mb-1">Agency Document</span>
+		</h3>
+		
+	</div>
+	
+	<div class="content flex-column-fluid" id="kt_content" data-select2-id="select2-data-kt_content">
+		<div class="card" data-select2-id="select2-data-133-psuk">
+
+			<div class="card-body py-4" id="divcardbody">
+				<div id="kt_table_users_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer"><div class="table-responsive"><table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" id="kt_table_users">
+					<thead>
+						<tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Last login: activate to sort column ascending" style="width: 125px;">Document Name</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Two-step: activate to sort column ascending" style="width: 125px;">Agency Document</th>
+					</thead>
+			
+					<tbody class="text-gray-600 fw-semibold" id="searcheduser">
+						{% for user in agency_doc %}
+					<tr class="odd">
+							<td>
+								{{user.name}}
+							</td>
+							<td>
+                                <a href="{{user.document.url}}" target="_blank"> View </a>
+                             </td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table></div>
+				
+			</div>
+		</div>
+	</div>
+	
+
+</div>
+</div>
+<div class="card mb-5 mb-xl-8">
+	<div class="card-header border-0 pt-5">
+		<h3 class="card-title align-items-start flex-column">
+			<span class="card-label fw-bold fs-3 mb-1">Agency License</span>
+		</h3>
+		
+	</div>
+	
+	<div class="content flex-column-fluid" id="kt_content" data-select2-id="select2-data-kt_content">
+		<div class="card" data-select2-id="select2-data-133-psuk">
+
+			<div class="card-body py-4" id="divcardbody">
+				<div id="kt_table_users_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer"><div class="table-responsive"><table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" id="kt_table_users">
+					<thead>
+						<tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Last login: activate to sort column ascending" style="width: 125px;">Agency State</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Two-step: activate to sort column ascending" style="width: 125px;">Agency Document</th>
+                        </tr>
+					</thead>
+			
+					<tbody class="text-gray-600 fw-semibold">
+						{% for user in agency_license %}
+					    <tr class="odd">
+							<td>
+								{{user.state}} 
+							</td>
+							<td>
+                               <a href="{{user.document.url}}" target="_blank"> View </a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table></div>
+				
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+</div>
+</div>
+
+
+{% endblock content %}

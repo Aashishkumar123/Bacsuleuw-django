@@ -1,0 +1,311 @@
+diff --git a/mindmap/functions.py b/mindmap/functions.py
+index 7d4833e6..676866de 100644
+--- a/mindmap/functions.py
++++ b/mindmap/functions.py
+@@ -2,8 +2,6 @@ import os
+ from PIL import Image
+ import hashlib
+ 
+-def getFirmsTitle():
+-    return 'Organisations'
+ 
+ def isMeaningful(string):
+     if string:
+@@ -60,6 +58,7 @@ def getLogo_for_script_event(event):
+     logo = image_format
+     return logo
+ 
++
+ def resizeFirmLogoTo100px(image_file):
+     image_name = str(image_file)
+     image_file = Image.open(image_file)
+@@ -73,6 +72,7 @@ def resizeFirmLogoTo100px(image_file):
+     img.save(path)
+     return img
+ 
++
+ def putImageToStorage(uploaded_file,storage_path,prefix='',filename=None,postfix = '',add_postfix_only_if_exists=None):
+     if not filename:
+         filename = uploaded_file
+@@ -84,5 +84,6 @@ def putImageToStorage(uploaded_file,storage_path,prefix='',filename=None,postfix
+     image_file.save(path)
+     return path
+ 
++
+ def makeFilenamePostfix(request,filename):
+-    return f'- {request.user.id} x {hashlib.md5(str(filename).encode()).hexdigest()}'
+\ No newline at end of file
++    return f'- {request.user.id} x {hashlib.md5(str(filename).encode()).hexdigest()}'
+diff --git a/mindmap/helpers.py b/mindmap/helpers.py
+index 681c943f..abdf6ef8 100644
+--- a/mindmap/helpers.py
++++ b/mindmap/helpers.py
+@@ -18,13 +18,12 @@ from mindmap.models import (
+     Faces,
+     Events,
+     Institutions,
++    LOGO_STANDARD_HEIGHT
+ )
+ from PIL import ImageFile, Image
+ 
+ ImageFile.LOAD_TRUNCATED_IMAGES = True
+ 
+-LOGO_STANDARD_HEIGHT = 50
+-DEFAULT_LOGO = "default.png"
+ dhash = hashlib.md5()
+ 
+ 
+@@ -33,19 +32,6 @@ def firms_ordered(group_id):
+ 
+ 
+ def get_vis_js_krug_map_data(request, krug_id, is_public):
+-    LOGO_STANDARD_HEIGHT = 50
+-    GROUP_WIDTH_BY_CONFIG_OR_FIRMS_COUNT = "firms_count_plus_config"
+-    GROUP_WIDTH_BY_FIRMS_COUNT = "firms_count"
+-    GROUP_WIDTH_EVENLY = "force_evenly"
+-    GROUP_WIDTH_BY_CONFIG_OR_EVENLY = "evenly"
+-    DEFAULT_CENTER_PADDING = 40
+-    DEFAULT_SECTORS_PADDING = 20
+-    DEFAULT_START_ANGLE = 270
+-    DEFAULT_SECTOR_ARROW_WIDTH = 5
+-    DEFAULT_SECTOR_LABEL_FONT_SIZE = 48
+-    DEFAULT_GROUP_LABEL_FONT_SIZE = 48
+-    MINIMUM_GROUP_WIDTH_DEG = 8
+-
+     logos_collage_algorithm = request.GET.get("logos_algorithm", "collage") == "collage"
+     sectors_labels_x = False
+     firm_id_filter = (
+@@ -64,14 +50,14 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+         krug.meta = {}
+ 
+     base_circle_margin = (
+-        int(krug.meta.get("center_padding", DEFAULT_CENTER_PADDING))
++        int(krug.meta.get("center_padding", Krugs.DEFAULT_CENTER_PADDING))
+         if krug.meta
+-        else DEFAULT_CENTER_PADDING
++        else Krugs.DEFAULT_CENTER_PADDING
+     )
+     base_degree_rotation = (
+-        int(float(krug.meta.get("start_angle", DEFAULT_START_ANGLE)))
++        int(float(krug.meta.get("start_angle", Krugs.DEFAULT_START_ANGLE)))
+         if krug.meta
+-        else DEFAULT_START_ANGLE
++        else Krugs.DEFAULT_START_ANGLE
+     )
+ 
+     sector_nodes = dict()
+@@ -88,17 +74,17 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+     expected_firms_row_width = 80
+     
+     space_between_sector_circles = (
+-        int(krug.meta.get("sectors_padding", DEFAULT_SECTORS_PADDING))
++        int(krug.meta.get("sectors_padding", Krugs.DEFAULT_SECTORS_PADDING))
+         if krug.meta
+-        else DEFAULT_SECTORS_PADDING
++        else Krugs.DEFAULT_SECTORS_PADDING
+     )
+     r1 = base_circle_margin
+     positions = krug.meta.get("positions", {}) if krug.meta else {}
+ 
+     sector_label_font_size = (
+-        int(krug.meta.get("sector_label_font_size", DEFAULT_SECTOR_LABEL_FONT_SIZE))
++        int(krug.meta.get("sector_label_font_size", Krugs.DEFAULT_SECTOR_LABEL_FONT_SIZE))
+         if krug.meta
+-        else DEFAULT_SECTOR_LABEL_FONT_SIZE
++        else Krugs.DEFAULT_SECTOR_LABEL_FONT_SIZE
+     )
+     max_sectors_label_width = 0
+     max_r = 0
+@@ -140,7 +126,6 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+         sector_id_endpoint = sector_id + "-endpoint"
+         # krug->getSectorsCount()
+         is_sector_last = (sector_index + 1) == sectors_count
+-        space_degree_between_groups = 2 / (sector_index + 1)
+         sector_width_offset = (
+             int(sector.meta.get("sector_width_offset", 0)) if sector.meta else 0
+         )
+@@ -238,11 +223,11 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                         (
+                             int(
+                                 krug.meta.get(
+-                                    "sector_arrow_width", DEFAULT_SECTOR_ARROW_WIDTH
++                                    "sector_arrow_width", Krugs.DEFAULT_SECTOR_ARROW_WIDTH
+                                 )
+                             )
+                             if krug.meta
+-                            else DEFAULT_SECTOR_ARROW_WIDTH
++                            else Krugs.DEFAULT_SECTOR_ARROW_WIDTH
+                         )
+                         / 2
+                         - 1
+@@ -290,10 +275,10 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                 },
+                 "arrows": {"to": {"enabled": False, "type": "circle"}},
+                 "width": int(
+-                    krug.meta.get("sector_arrow_width", DEFAULT_SECTOR_ARROW_WIDTH)
++                    krug.meta.get("sector_arrow_width", Krugs.DEFAULT_SECTOR_ARROW_WIDTH)
+                 )
+                 if krug.meta
+-                else DEFAULT_SECTOR_ARROW_WIDTH,
++                else Krugs.DEFAULT_SECTOR_ARROW_WIDTH,
+             }
+         )
+ 
+@@ -302,9 +287,9 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+             total_firms_in_sector = 1
+ 
+         split_sector_by = (
+-            sector.meta.get("split_sector_by", GROUP_WIDTH_BY_CONFIG_OR_EVENLY)
++            sector.meta.get("split_sector_by", Krugs.GROUP_WIDTH_BY_CONFIG_OR_EVENLY)
+             if sector.meta
+-            else GROUP_WIDTH_BY_CONFIG_OR_EVENLY
++            else Krugs.GROUP_WIDTH_BY_CONFIG_OR_EVENLY
+         )
+         pool_of_available_degrees = 360 - sum(get_pool_of_available_degrees(sector.id))
+ 
+@@ -323,7 +308,7 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+         _group_widths = dict()
+ 
+         if sector_groups_count > 45:
+-            MINIMUM_GROUP_WIDTH_DEG = 360 / sector_groups_count
++            Krugs.MINIMUM_GROUP_WIDTH_DEG = 360 / sector_groups_count
+ 
+         should_resize_group_widths = False
+         amount_of_group_widths_available_to_share = 0
+@@ -335,13 +320,13 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+             firms_count = FirmGroup.get_firms_by_group_id(group.id).count()
+             group_degrees_width = 5  # This 5 should actually be never used
+ 
+-            if split_sector_by == GROUP_WIDTH_BY_FIRMS_COUNT:
++            if split_sector_by == Krugs.GROUP_WIDTH_BY_FIRMS_COUNT:
+                 group_degrees_width = 360 * firms_count / total_firms_in_sector
+ 
+-            elif split_sector_by == GROUP_WIDTH_EVENLY:
++            elif split_sector_by == Krugs.GROUP_WIDTH_EVENLY:
+                 group_degrees_width = 360 / sector_groups_count
+ 
+-            elif split_sector_by == GROUP_WIDTH_BY_CONFIG_OR_EVENLY:
++            elif split_sector_by == Krugs.GROUP_WIDTH_BY_CONFIG_OR_EVENLY:
+                 if not total_groups_without_predefined_degrees:
+                     group_degrees_width = 10
+                 else:
+@@ -358,7 +343,7 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                         / total_groups_without_predefined_degrees
+                     )
+ 
+-            elif split_sector_by == GROUP_WIDTH_BY_CONFIG_OR_FIRMS_COUNT:
++            elif split_sector_by == Krugs.GROUP_WIDTH_BY_CONFIG_OR_FIRMS_COUNT:
+                 if not total_firms_in_sector_without_predefined_degrees:
+                     group_degrees_width = (
+                         int(group.meta.get("degrees_width"))
+@@ -376,19 +361,19 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+ 
+             _group_widths[group_id] = {
+                 "group_degrees_width": group_degrees_width,
+-                "should_be_increased": group_degrees_width < MINIMUM_GROUP_WIDTH_DEG,
++                "should_be_increased": group_degrees_width < Krugs.MINIMUM_GROUP_WIDTH_DEG,
+             }
+ 
+             if _group_widths[group_id].get("should_be_increased"):
+                 should_resize_group_widths = True
+                 amount_of_group_widths_required += (
+-                    MINIMUM_GROUP_WIDTH_DEG - group_degrees_width
++                    Krugs.MINIMUM_GROUP_WIDTH_DEG - group_degrees_width
+                 )
+ 
+             else:
+                 total_width_of_groups_that_do_not_need_resize += group_degrees_width
+                 amount_of_group_widths_available_to_share += (
+-                    group_degrees_width - MINIMUM_GROUP_WIDTH_DEG
++                    group_degrees_width - Krugs.MINIMUM_GROUP_WIDTH_DEG
+                 )
+ 
+         if should_resize_group_widths:
+@@ -405,12 +390,12 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                 if _group_widths.get(group_id).get("should_be_increased"):
+                     _group_widths[group_id][
+                         "group_degrees_width"
+-                    ] = MINIMUM_GROUP_WIDTH_DEG
++                    ] = Krugs.MINIMUM_GROUP_WIDTH_DEG
+ 
+                 else:
+                     i_can_share_width_percent = (
+                         _group_widths.get(group_id).get("group_degrees_width")
+-                        - MINIMUM_GROUP_WIDTH_DEG
++                        - Krugs.MINIMUM_GROUP_WIDTH_DEG
+                     ) / amount_of_group_widths_available_to_share
+                     i_can_share_width = (
+                         i_can_share_width_percent * amount_of_group_widths_required
+@@ -426,7 +411,7 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                 max(
+                     20,
+                     int(krug.meta.get("group_label_font_size", 0)) if krug.meta else 0,
+-                    DEFAULT_GROUP_LABEL_FONT_SIZE,
++                    Krugs.DEFAULT_GROUP_LABEL_FONT_SIZE,
+                 )
+             )
+             group_label_margin = int(min(70, max(20, group_label_font_size / 2)))
+@@ -659,11 +644,11 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                             1,
+                             int(
+                                 krug.meta.get(
+-                                    "sector_arrow_width", DEFAULT_SECTOR_ARROW_WIDTH
++                                    "sector_arrow_width", Krugs.DEFAULT_SECTOR_ARROW_WIDTH
+                                 )
+                             )
+                             if krug.meta
+-                            else DEFAULT_SECTOR_ARROW_WIDTH / 2 - 1,
++                            else Krugs.DEFAULT_SECTOR_ARROW_WIDTH / 2 - 1,
+                         ),
+                         "color": {
+                             "border": group.meta.get("label_bg_color")
+@@ -704,7 +689,7 @@ def get_vis_js_krug_map_data(request, krug_id, is_public):
+                         "arrows": {"to": {"enabled": False, "type": "circle"}},
+                         "width": int(krug.meta.get("sector_arrow_width"))
+                         if krug.meta.get("sector_arrow_width")
+-                        else DEFAULT_SECTOR_ARROW_WIDTH,
++                        else Krugs.DEFAULT_SECTOR_ARROW_WIDTH,
+                     }
+                 )
+ 
+diff --git a/mindmap/views.py b/mindmap/views.py
+index 478161e6..738605ba 100644
+--- a/mindmap/views.py
++++ b/mindmap/views.py
+@@ -24,13 +24,12 @@ from mindmap.models import (
+     merge_meta_array_by_key,
+ )
+ from mindmap import helpers
+-from mindmap import functions
+ from django.core.cache import cache
+ from rest_framework.exceptions import ValidationError
+ from django.shortcuts import render_to_response
+ from django.contrib import messages
+ from django.core.paginator import Paginator
+-from datetime import datetime, timedelta, date
++from datetime import datetime, date
+ from django.contrib.auth.decorators import user_passes_test
+ from mindmap.functions import (
+     resizeFirmLogoTo100px,
+@@ -1820,7 +1819,7 @@ def firms_import(request):
+             status += " That was a test mode with Dry Run."
+ 
+         if should_create_firms:
+-            status += " Attempted to add all " + functions.getFirmsTitle()
++            status += " Attempted to add all Organisations"
+             last_firm_after = Firms.objects.all().last()
+             status += (
+                 " Last Firm ID: before="
+diff --git a/templates/components/firm-icon.html b/templates/components/firm-icon.html
+index c3861a1f..52e5846f 100644
+--- a/templates/components/firm-icon.html
++++ b/templates/components/firm-icon.html
+@@ -2,7 +2,7 @@
+ 
+ <div class="firm_with_logo firm_with_logo_id_{{firm.id}}" data-is_investor="{% if firm.isInvestor %} '1' {% else %} '0' {%endif%}">
+     <a class="btn btn-light add_tooltip" href="{% if is_public %} {% url 'public.firms.show' firm=firm.id %} {% else %} {% url 'show_firm' firm=firm.id %} {% endif %}" data-firm_id="{{firm.id}}" title="{{firm.getAreaString}}" target="{% if in_new_window %}target="_blank"{% endif %}">
+-        {% if firm.hasLogo %}
++        {% if firm.logo.url %}
+             <span><img src="{{firm.logo.url}}" alt="{{firm.name}}" class="rounded"></span>
+         {% else %}
+         <span><img src="/files/companies/default.png" alt="{{firm.name}}" class="rounded"></span>

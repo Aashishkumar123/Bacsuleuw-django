@@ -1,0 +1,180 @@
+diff --git a/mindmap/functions.py b/mindmap/functions.py
+index 3c1210e0..90a7c3ca 100644
+--- a/mindmap/functions.py
++++ b/mindmap/functions.py
+@@ -7,10 +7,8 @@ def isMeaningful(string):
+     if string:
+         string = string.lower().strip()
+         array = ['na', '-', 'n/a', '', 'undisclosed', 'none', 'no']
+-
+-        if string != "" and string in array:
++        if not string and string in array:
+             return False
+-
+         return True
+     return False
+ 
+@@ -70,7 +68,7 @@ def resizeFirmLogoTo100px(image_file):
+     img = image_file.resize((new_width, new_height), Image.ANTIALIAS)
+     path = f'files/companies/{image_name}'
+     img.save(path)
+-    return img
++    return path
+ 
+ 
+ def putImageToStorage(uploaded_file, storage_path, prefix='', filename=None, postfix='', add_postfix_only_if_exists=None):
+diff --git a/mindmap/models.py b/mindmap/models.py
+index ab9b6e05..553343cc 100644
+--- a/mindmap/models.py
++++ b/mindmap/models.py
+@@ -621,6 +621,11 @@ class Krugs(BaseModel):
+         for sector in sector_ordered:
+             cache.delete(f"sector_map_{sector.id}")
+ 
++    def get_domain(self):
++        if settings.DEBUG:
++            return '127.0.0.1:8000'
++        return self.domain if self.domain else 'mindmaps.aginganalytics.com'
++
+ 
+ class Events(BaseModel):
+     name = models.CharField(max_length=191, null=False)
+@@ -1805,7 +1810,7 @@ class Pages(BaseModel):
+     def getSlugOrId(self):
+         return self.id if not self.slug else self.slug
+ 
+-    def getDomain(self, host="localhost:8000"):
++    def getDomain(self, host="127.0.0.1:8000"):
+         if settings.DEBUG:
+             return host
+         return self.domain if self.domain else "mindmaps.aginganalytics.com"
+diff --git a/mindmap/templatetags/mindmap_templatetages.py b/mindmap/templatetags/mindmap_templatetages.py
+index ace5fc4d..8d3c1539 100644
+--- a/mindmap/templatetags/mindmap_templatetages.py
++++ b/mindmap/templatetags/mindmap_templatetages.py
+@@ -141,17 +141,32 @@ def col_div(i):
+ 
+ 
+ @register.simple_tag
+-def get_reports_sub_domains():
+-    return [
+-        "mindmaps.aginganalytics.com",
+-        "mindmaps.ai-pharma.dka.global",
+-        "mindmaps.dka.global",
+-        "mindmaps.deep-pharma.tech",
+-        "mindmaps.innovationeye.com",
+-        "mindmaps.neurotech.com",
+-        "mindmaps.femtech.health",
+-        "mindmaps.longevity.international",
+-    ]
++def get_reports_sub_domains(request):
++    host = request.get_host()
++    if host == 'platform.dkv.global':
++        return ''
++    elif host == 'mindmaps.platform.dkv.global':
++        return ['mindmaps.platform.dkv.global']
++    elif host == 'mindmaps.innovationeye.com':
++        return ['mindmaps.innovationeye.com']
++    else:
++        if host == 'mindmaps.neurotech.com':
++            return ''
++        elif host == 'mindmaps.aginganalytics.com':
++            return ''
++        elif host == 'mindmaps.ai-pharma.dka.global':
++            return ''
++        elif host == 'mindmaps.dka.global':
++            return [
++            "mindmaps.aginganalytics.com",
++            "mindmaps.ai-pharma.dka.global",
++            "mindmaps.dka.global",
++            "mindmaps.deep-pharma.tech",
++            "mindmaps.innovationeye.com",
++            "mindmaps.neurotech.com",
++            "mindmaps.femtech.health",
++            "mindmaps.longevity.international",
++        ]
+ 
+ 
+ @register.simple_tag
+@@ -424,17 +439,6 @@ def diff_in_minutes(event):
+     return datem.minute
+ 
+ 
+-@register.simple_tag
+-def is_meaningful_fun(string):
+-    if string:
+-        string = string.lower().strip()
+-        array = ["na", "-", "n/a", "", "undisclosed", "none", "no"]
+-        if string != "" and string in array:
+-            return False
+-        return True
+-    return False
+-
+-
+ @register.simple_tag
+ def face_route_fun(face, krug, is_public):
+     if not krug or not krug.id:
+diff --git a/templates/krugs/create-krug.html b/templates/krugs/create-krug.html
+index da04b58c..7edfff74 100644
+--- a/templates/krugs/create-krug.html
++++ b/templates/krugs/create-krug.html
+@@ -9,6 +9,14 @@
+     {% endif %}
+ {% endblock title %}
+ 
++{% block header %}
++    {% if krug.name %}
++        {{krug.name}}
++    {% else %}
++        New Project
++    {% endif %}
++{% endblock header %}
++
+ {% block header2 %}
+     {% if krug.subtitle %}
+         <code>
+@@ -65,9 +73,11 @@
+             <div class="col-md-6 mb-3">
+                 <label for="domain">URL domain</label>
+                 <select name="domain" class="form-control">
+-                    {% get_reports_sub_domains as domains %}     
++                    {% get_reports_sub_domains request as domains %}     
+                     {% for domain in domains %}
+-                    <option value="{{domain}}" {% if krug.domain == domain %} selected="selected" {% endif %}>{{domain}}</option>
++                        <option value="{{domain}}" {% if krug.get_domain == domain %} selected="selected" {% endif %}>
++                            {{domain}}
++                        </option>
+                     {% endfor %}
+                 </select>
+ 
+diff --git a/templates/krugs/krug-event-public.html b/templates/krugs/krug-event-public.html
+index cc351172..170d6732 100644
+--- a/templates/krugs/krug-event-public.html
++++ b/templates/krugs/krug-event-public.html
+@@ -65,7 +65,7 @@
+             {% endif %}
+             
+ 
+-            {% is_meaningful_fun event.register_url as register_url %}
++            {% is_meaningful event.register_url as register_url %}
+             {% if register_url %}
+                 <div class="mb-2">
+                     <a href="{{event.register_url}}" target="_blank" class="btn btn-primary">
+diff --git a/templates/page/create-page.html b/templates/page/create-page.html
+index 5d9a8f0c..2d5118f6 100644
+--- a/templates/page/create-page.html
++++ b/templates/page/create-page.html
+@@ -48,9 +48,11 @@
+             <div class="col-md-4 mb-3">
+                 <label for="domain">URL domain</label>
+                 <select name="domain" class="form-control">
+-                    {% get_reports_sub_domains as domains%}
++                    {% get_reports_sub_domains request as domains %}
+                     {% for domain in domains %}
+-                        <option value="{{domain}}" {% if page.getDomain == domain %} selected="selected" {% endif %}>{{domain}}</option>
++                        <option value="{{domain}}" {% if page.getDomain == domain %} selected="selected" {% endif %}>
++                            {{domain}}
++                        </option>
+                     {% endfor %}
+                 </select>
+                 <label for="slug">URL slug</label>

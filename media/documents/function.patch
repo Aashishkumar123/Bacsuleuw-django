@@ -1,0 +1,38 @@
+diff --git a/mindmap/functions.py b/mindmap/functions.py
+index 7d4833e6..676866de 100644
+--- a/mindmap/functions.py
++++ b/mindmap/functions.py
+@@ -2,8 +2,6 @@ import os
+ from PIL import Image
+ import hashlib
+ 
+-def getFirmsTitle():
+-    return 'Organisations'
+ 
+ def isMeaningful(string):
+     if string:
+@@ -60,6 +58,7 @@ def getLogo_for_script_event(event):
+     logo = image_format
+     return logo
+ 
++
+ def resizeFirmLogoTo100px(image_file):
+     image_name = str(image_file)
+     image_file = Image.open(image_file)
+@@ -73,6 +72,7 @@ def resizeFirmLogoTo100px(image_file):
+     img.save(path)
+     return img
+ 
++
+ def putImageToStorage(uploaded_file,storage_path,prefix='',filename=None,postfix = '',add_postfix_only_if_exists=None):
+     if not filename:
+         filename = uploaded_file
+@@ -84,5 +84,6 @@ def putImageToStorage(uploaded_file,storage_path,prefix='',filename=None,postfix
+     image_file.save(path)
+     return path
+ 
++
+ def makeFilenamePostfix(request,filename):
+-    return f'- {request.user.id} x {hashlib.md5(str(filename).encode()).hexdigest()}'
+\ No newline at end of file
++    return f'- {request.user.id} x {hashlib.md5(str(filename).encode()).hexdigest()}'
