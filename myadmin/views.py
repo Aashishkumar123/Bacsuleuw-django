@@ -98,7 +98,7 @@ def logout(request):
 @user_passes_test(lambda u: u.is_superuser)
 def customers(request):
     users = User.objects.filter(account_type='customer')
-    paginator = Paginator(users, 1) 
+    paginator = Paginator(users, 10) 
     page_number = request.GET.get('page')
     customers = paginator.get_page(page_number)
     context = {'users':customers}
@@ -109,26 +109,26 @@ def customers(request):
 @user_passes_test(lambda u: u.is_superuser)
 def agency(request):
     users = User.objects.filter(account_type='agency')
-    paginator = Paginator(users, 1)
+    paginator = Paginator(users, 10)
     page_number = request.GET.get('page')
     agency = paginator.get_page(page_number)
     context = {'users':agency}
     return render(request,'basculeadmin/agency/agency.html',context=context)
 
 def pagination(request):
-    users = User.objects.filter(account_type='agency')
-    paginator = Paginator(users, 1)
-    pagenu = request.GET.get('pagenu')
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('pagenu')
+    user = request.GET.get('user')
+    users = User.objects.filter(account_type=user).values()
+    paginator = Paginator(users, 10)
     agency = paginator.get_page(page_number)
-    context = {'users':agency}
-    return render(request,'basculeadmin/ajaxagency.html',context=context)
+    data = list(agency)
+    return JsonResponse({'data':data})
 
 @login_required(login_url='/basculeadmin/login/')
 @user_passes_test(lambda u: u.is_superuser)
 def employees(request):
     users = User.objects.filter(account_type='employee')
-    paginator = Paginator(users, 1) 
+    paginator = Paginator(users, 10) 
     page_number = request.GET.get('page')
     employee = paginator.get_page(page_number)
     context = {'users':employee}

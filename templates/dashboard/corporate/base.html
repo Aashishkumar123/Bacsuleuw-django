@@ -707,7 +707,8 @@
 												<span class="menu-title">Dashboard</span>
 											</a>
 										</div>
-										{% for i in request.user.userpermission.all %} {% for p in i.permision.all %} {% for sp in p.name.all %} {{sp}} {% if sp == 'manage_agent' %}
+										<!-- {% for i in request.user.userpermission.all %} {% for p in i.permision.all %} {% for sp in p.name.all %} {{sp}} {% if sp == 'manage_agency' %} -->
+										<!-- {% endif %} {% endfor %} {% endfor %} {% endfor %} -->
 										<div data-kt-menu-trigger="click" class="menu-item menu-accordion menu-active-bg">
                                             <span class="menu-link">
                                                 <span class="menu-icon">
@@ -737,7 +738,7 @@
                                                 </div>
                                             </div>
                                         </div>
-										{% endif %} {% endfor %} {% endfor %} {% endfor %}
+										
 										<div class="separator my-5"></div>
 										<div class="menu-item {% if '/dashboard/employee/profile/' == request.path %}show{% endif %}">
 											<a class="menu-link text-hover-primary" href="/dashboard/employee/profile/">
