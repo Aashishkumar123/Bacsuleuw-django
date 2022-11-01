@@ -322,7 +322,6 @@
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="User: activate to sort column ascending" style="width: 215.016px;">User</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Role: activate to sort column ascending" style="width: 125px;">Email</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Last login: activate to sort column ascending" style="width: 125px;">Active/In-active</th>
-							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Two-step: activate to sort column ascending" style="width: 125px;">Two-step</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Joined Date: activate to sort column ascending" style="width: 125px;">Joined Date</th>
 							<th class="text-end min-w-100px sorting_disabled" rowspan="1" colspan="1" aria-label="Actions" style="width: 100px;">Actions</th></tr>
 					</thead>
@@ -352,9 +351,7 @@
 									<input class="form-check-input" name="billing" type="checkbox" onclick="AtiveDiactive('1',{{user.id}})" id="check" {% if user.is_active == 1 %}checked{% endif %} />
 								</label>
 							</td>
-							<td data-order="2022-10-06T12:10:58+05:30">
-								<div class="badge badge-light fw-bold">Yesterday</div>
-							</td>
+							
 							<td data-order="2022-12-20T10:30:00+05:30">
 								{{user.date_joined}} 
 							 </td>
@@ -393,9 +390,9 @@
 								{% endif %}
 								{% for i in users.paginator.page_range %} 
 									{% if i == users.number %}
-										<li class="paginate_button page-item active"><a onclick="pagenumber({{i}})" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
+										<li class="paginate_button page-item active"><a onclick="pagenumber({{i}},'customer')" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
 									{% else %}
-										<li class="paginate_button page-item active"><a onclick="pagenumber({{i}})" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
+										<li class="paginate_button page-item active"><a onclick="pagenumber({{i}},'customer')" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
 									{% endif %}
 								{% endfor %}
 								{% if users.has_next %}

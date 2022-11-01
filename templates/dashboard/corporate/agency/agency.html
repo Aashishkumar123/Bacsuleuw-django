@@ -301,9 +301,10 @@
 									<th class="ps-4 min-w-150px">Email</th>
 									<th class="ps-4 min-w-150px">Active/In-active</th>
 									<th class="ps-4 min-w-150px">Joined Date</th>
-									{% for i in request.user.userpermission.all %} {% for p in i.permision.all %} {% if p.name == 'send_mail' %}
+									<!-- {% for i in request.user.userpermission.all %} {% for p in i.permision.all %} {% if p.name == 'send_mail' %}
+									{% endif %} {% endfor %} {% endfor %} -->
 									<th class="ps-4 min-w-150px">Send Crendtials</th>
-									{% endif %} {% endfor %} {% endfor %}
+									
 									<th class="ps-4 min-w-100px" rowspan="1" colspan="1" aria-label="Actions" style="width: 100px;">
 										Actions
 									</th>
@@ -329,11 +330,12 @@
 										<td data-order="2022-12-20T10:30:00+05:30">
 											{{user.date_joined}} 
 										</td>
-										{% for i in request.user.userpermission.all %} {% for p in i.permision.all %} {% if p.name == 'send_mail' %}
+										<!-- {% for i in request.user.userpermission.all %} {% for p in i.permision.all %} {% if p.name == 'send_mail' %}
+										{% endif %} {% endfor %} {% endfor %} -->
 										<td>
 											<a type="button" onClick="SendPassword('{{user.email}}')" class="btn btn-promary btn-sm">Send</a>
 										</td>
-										{% endif %} {% endfor %} {% endfor %}
+										
 										<td>
 											<a href="#" class="btn btn-sm btn-light btn-active-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">Actions
 											<span class="svg-icon svg-icon-5 m-0">

@@ -95,9 +95,9 @@ WSGI_APPLICATION = 'BasculeAnalytics.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bascule',
-        'USER': 'rajat',
-        'PASSWORD': 'Rajat3012@+',
+        'NAME': 'basculeuw',
+        'USER': 'shubham',
+        'PASSWORD': 'Shubham#051',
         'HOST': 'localhost',
         'PORT': '3306',
     }

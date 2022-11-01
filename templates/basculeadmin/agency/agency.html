@@ -184,7 +184,7 @@
 								<path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
 							</svg>
 						</span>
-						<input oninput="Searchuser(this,'agency')" id="searchusername"  type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search user">
+						<input oninput="AgencySearchuser(this,'agency')" id="searchusername"  type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search user">
 					</div>
 				</div>
 				
@@ -322,6 +322,7 @@
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="User: activate to sort column ascending" style="width: 215.016px;">User</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Role: activate to sort column ascending" style="width: 125px;">Email</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Last login: activate to sort column ascending" style="width: 125px;">Active/In-active</th>
+							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Last login: activate to sort column ascending" style="width: 125px;">Send Crendtials</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Two-step: activate to sort column ascending" style="width: 125px;">Agency info</th>
 							<th class="min-w-125px sorting" tabindex="0" aria-controls="kt_table_users" rowspan="1" colspan="1" aria-label="Joined Date: activate to sort column ascending" style="width: 125px;">Joined Date</th>
 							<th class="text-end min-w-100px sorting_disabled" rowspan="1" colspan="1" aria-label="Actions" style="width: 100px;">Actions</th></tr>
@@ -351,6 +352,9 @@
 								<label class="form-check form-switch form-check-custom form-check-solid">
 									<input class="form-check-input" name="billing" type="checkbox" onclick="AtiveDiactive('1',{{user.id}})" id="check" {% if user.is_active == 1 %}checked{% endif %} />
 								</label>
+							</td>
+							<td>
+								<a type="button" onClick="SendPassword('{{user.email}}')" class="btn btn-promary btn-sm">Send</a>
 							</td>
 							<td>
 								<a href="/basculeadmin/agency/info/?id={{user.id}}" class="menu-link px-3"> View</a>
@@ -393,9 +397,9 @@
 								{% endif %}
 								{% for i in users.paginator.page_range %} 
 									{% if i == users.number %}
-										<li class="paginate_button page-item active"><a onclick="pagenumber({{i}})" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
+										<li class="paginate_button page-item active"><a onclick="Agencypagenumber({{i}},'agency')" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
 									{% else %}
-										<li class="paginate_button page-item active"><a onclick="pagenumber({{i}})" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
+										<li class="paginate_button page-item active"><a onclick="Agencypagenumber({{i}},'agency')" aria-controls="kt_table_users" data-dt-idx="1" tabindex="0" class="page-link">{{i}}</a></li>
 									{% endif %}
 								{% endfor %}
 								{% if users.has_next %}
